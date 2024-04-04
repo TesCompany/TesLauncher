@@ -18,13 +18,13 @@
  ****************************************************************************/
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
-import QtGraphicalEffects 1.0
+import Qt5Compat.GraphicalEffects
 import QtQuick.Window 2.2
 import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.kcoreaddons 1.0 as KCoreAddons
-import org.kde.kirigami 2.13 as Kirigami
+import org.kde.coreaddons 1.0 as KCoreAddons
+import org.kde.kirigami as Kirigami
 import QtQuick.Controls 2.15
 
 import "../code/tools.js" as Tools
@@ -32,36 +32,42 @@ import "../code/tools.js" as Tools
 Item {
   id: favItem
 
-  property int iconSize: units.gridUnit * 3.2
+  property int iconSize: Kirigami.Units.gridUnit * 3.2
 
-  width:  Math.max(iconSize + units.largeSpacing * 2, appname.contentWidth) + 10
-  height: iconSize + units.smallSpacing + appname.implicitHeight + 10
+  width:  125
+  height: iconSize + Kirigami.Units.smallSpacing + appname.implicitHeight + 10
 
   signal itemActivated(int index, string actionId, string argument)
+  signal actionTriggered(string actionId, variant actionArgument)
+  signal aboutToShowActionMenu(variant actionMenu)
+
 
   property bool highlighted: false
   property bool isDraging: false
 
   property bool hasActionList: ((model.favoriteId !== null)
-      || (("hasActionList" in model) && (model.hasActionList === true)))
+      || (("hasActionList" in model) && (model.hasActionList !== null)))
+    
+  property int itemIndex: model.index
 
 
-  function openActionMenu(x, y) {
-      var actionList = hasActionList ? model.actionList : [];
-      console.log(model.favoriteId)
-      Tools.fillActionMenu(i18n, actionMenu, actionList, globalFavorites, model.favoriteId);
-      actionMenu.visualParent = favItem;
-      actionMenu.open(x, y);
+  function openActionMenu(visualParent, x, y) {
+        aboutToShowActionMenu(actionMenu);
+        actionMenu.visualParent = visualParent;
+        actionMenu.open(x, y);
+    }
+
+  onAboutToShowActionMenu: actionMenu => {
+        const actionList = (model.hasActionList !== null) ? model.actionList : [];
+        Tools.fillActionMenu(i18n, actionMenu, actionList, scrollView.pinnedModel[0], model.favoriteId);
+    }
+  onActionTriggered: (actionId, actionArgument) => {
+      if (Tools.triggerAction(scrollView.pinnedModel[0], model.index, actionId, actionArgument) === true) {
+            kicker.expanded = false;
+        }
   }
 
-  function actionTriggered(actionId, actionArgument) {
-      var close = (Tools.triggerAction(kicker.globalFavorites, index, actionId, actionArgument) === true);
-      if (close) {
-          root.toggle();
-      }
-  }
-
-  PlasmaCore.IconItem {
+ Kirigami.Icon {
     id: appicon
     anchors {
       top: parent.top
@@ -77,9 +83,10 @@ Item {
     text: ("name" in model ? model.name : model.display)
     font.family: main.textFont
     font.pointSize: main.textSize
+    color: main.textColor
     anchors {
       top: appicon.bottom
-      topMargin: units.smallSpacing
+      topMargin: Kirigami.Units.smallSpacing
       left: parent.left
       right: parent.right
     }
@@ -158,17 +165,17 @@ Item {
       cursorShape: Qt.PointingHandCursor
       hoverEnabled: true
       onClicked: {
-        if (!isDraging) {
+       
           if (mouse.button == Qt.RightButton ) {
             if (favItem.hasActionList) {
                 var mapped = mapToItem(favItem, mouse.x, mouse.y);
-                openActionMenu(mapped.x, mapped.y);
+                favItem.openActionMenu(favItem, mouse.x, mouse.y);
             }
           } else {
             kicker.globalFavorites.trigger(index, "", null);
             root.toggle()
           }
-        }
+        
       }
       onReleased: {
         isDraging: false
@@ -191,7 +198,8 @@ Item {
             dragHelper.startDrag(kicker, model.url, model.decoration,
                 "text/x-plasmoidservicename", model.pluginName);
           } else {
-            dragHelper.startDrag(kicker, model.url, model.decoration);
+            kicker.dragSource = favItem;
+            dragHelper.startDrag(kicker, model.url, model.icon);
           }
         }
       }
@@ -200,8 +208,8 @@ Item {
       id: actionMenu
 
       onActionClicked: {
-          visualParent.actionTriggered(actionId, actionArgument);
-          root.toggle()
+          actionTriggered(actionId, actionArgument);
+         // root.toggle()
       }
   }
   Transition {

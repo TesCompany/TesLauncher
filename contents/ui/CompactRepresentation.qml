@@ -19,26 +19,28 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .          *
  ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
 
 import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.core as PlasmaCore
+
+import org.kde.kirigami as Kirigami
 
 Item {
     id: root
 
     property QtObject dashWindow: null
-    readonly property bool useCustomButtonImage: (plasmoid.configuration.useCustomButtonImage && plasmoid.configuration.customButtonImage.length != 0)
+    readonly property bool useCustomButtonImage: (Plasmoid.configuration.useCustomButtonImage && Plasmoid.configuration.customButtonImage.length != 0)
 
-    PlasmaCore.IconItem {
+    Kirigami.Icon {
         id: buttonIcon
 
-        width: plasmoid.configuration.activationIndicator ? parent.width * 0.65 : parent.width
-        height: plasmoid.configuration.activationIndicator ? parent.height * 0.65 : parent.height
+        width: Plasmoid.configuration.activationIndicator ? parent.width * 0.65 : parent.width
+        height: Plasmoid.configuration.activationIndicator ? parent.height * 0.65 : parent.height
         anchors.centerIn: parent
 
-        source: useCustomButtonImage ? plasmoid.configuration.customButtonImage : plasmoid.configuration.icon
+        source: useCustomButtonImage ? Plasmoid.configuration.customButtonImage : Plasmoid.configuration.icon
 
         active: mouseArea.containsMouse
 
@@ -48,11 +50,11 @@ Item {
           id: indicator
           width: 0
           anchors.horizontalCenter: parent.horizontalCenter
-          height: 3 * PlasmaCore.Units.devicePixelRatio
+          height: 3 * 1
           radius: 10
           y: parent.height + height
-          color: plasmoid.configuration.indicatorColor
-          visible: plasmoid.configuration.activationIndicator
+          color: Plasmoid.configuration.indicatorColor
+          visible: Plasmoid.configuration.activationIndicator
 
           states: [
             State { name: "inactive"

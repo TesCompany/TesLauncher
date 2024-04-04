@@ -20,10 +20,15 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .          *
  ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Layouts 1.12
-import org.kde.plasma.core 2.0 as PlasmaCore
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQml 2.15
+
+import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents
+
+import org.kde.plasma.plasmoid 2.0
+
 
 PlasmaCore.Dialog {
     id: root
@@ -31,8 +36,7 @@ PlasmaCore.Dialog {
     objectName: "popupWindow"
     flags: Qt.WindowStaysOnTopHint
 
-    location: plasmoid.configuration.floating || plasmoid.configuration.launcherPosition == 2 ? "Floating" : plasmoid.location
-
+    location: Plasmoid.configuration.floating || Plasmoid.configuration.launcherPosition == 2 ? "Floating" : Plasmoid.location
     hideOnWindowDeactivate: true
 
     onVisibleChanged: {
@@ -60,7 +64,7 @@ PlasmaCore.Dialog {
     }
 
     function toggle() {
-        root.visible = false;
+      root.visible = false;
     }
 
     function reset() {
@@ -68,8 +72,8 @@ PlasmaCore.Dialog {
     }
 
     function popupPosition(width, height) {
-        var screenAvail = plasmoid.availableScreenRect;
-        var screen/*Geom*/ = plasmoid.screenGeometry;
+        var screenAvail = Plasmoid.availableScreenRect;
+        var screen/*Geom*/ = kicker.screenGeometry;
         //QtBug - QTBUG-64115
         /*var screen = Qt.rect(screenAvail.x + screenGeom.x,
             screenAvail.y + screenGeom.y,
@@ -78,10 +82,10 @@ PlasmaCore.Dialog {
 
         var offset = 0
 
-        if (plasmoid.configuration.offsetX > 0 && plasmoid.configuration.floating) {
-          offset = plasmoid.configuration.offsetX
+        if (Plasmoid.configuration.offsetX > 0 && Plasmoid.configuration.floating) {
+          offset = Plasmoid.configuration.offsetX
         } else {
-          offset = plasmoid.configuration.floating ? parent.height * 0.75 : 0
+          offset = plasmoid.configuration.floating ? parent.height * 0.35 : 0
         }
         // Fall back to bottom-left of screen area when the applet is on the desktop or floating.
         var x = offset;
@@ -91,11 +95,11 @@ PlasmaCore.Dialog {
         var appletTopLeft = parent.mapToGlobal(0, 0);
         var appletBottomLeft = parent.mapToGlobal(0, parent.height);
 
-        if (plasmoid.configuration.launcherPosition != 0){
+        if (Plasmoid.configuration.launcherPosition != 0){
           x = horizMidPoint - width / 2;
         } else {
           x = (appletTopLeft.x < horizMidPoint) ? screen.x : (screen.x + screen.width) - width;
-          if (plasmoid.configuration.floating) {
+          if (Plasmoid.configuration.floating) {
             if (appletTopLeft.x < horizMidPoint) {
               x += offset
             } else if (appletTopLeft.x + width > horizMidPoint){
@@ -104,22 +108,22 @@ PlasmaCore.Dialog {
           }
         }
 
-        if (plasmoid.configuration.launcherPosition != 2){
-          if (plasmoid.location == PlasmaCore.Types.TopEdge) {
-            if (plasmoid.configuration.floating) {
+        if (Plasmoid.configuration.launcherPosition != 2){
+          if (Plasmoid.location == PlasmaCore.Types.TopEdge) {
+            if (Plasmoid.configuration.floating) {
                           /*this is floatingAvatar.width*/
-              if (plasmoid.configuration.offsetY > 0) {
-                offset = (125 * PlasmaCore.Units.devicePixelRatio) / 2 + plasmoid.configuration.offsetY
+              if (Plasmoid.configuration.offsetY > 0) {
+                offset = (125 * 1) / 2 + Plasmoid.configuration.offsetY
               } else {
-                offset = (125 * PlasmaCore.Units.devicePixelRatio) / 2 + parent.height * 0.125
+                offset = (125 * 1) / 2 + parent.height * 0.125
               }
             }
             y = screen.y + parent.height + panelSvg.margins.bottom + offset;
           } else {
-            if (plasmoid.configuration.offsetY > 0) {
-              offset = plasmoid.configuration.offsetY
+            if (Plasmoid.configuration.offsetY > 0) {
+              offset = Plasmoid.configuration.offsetY
             }
-            y = screen.y + screen.height - parent.height - height - panelSvg.margins.top - offset;
+            y = screen.y + screen.height - parent.height - height - panelSvg.margins.top - offset * 2.5;
           }
         } else {
           y = vertMidPoint - height / 2
@@ -131,8 +135,8 @@ PlasmaCore.Dialog {
     FocusScope {
         id: fs
         focus: true
-        Layout.minimumWidth: 600 * PlasmaCore.Units.devicePixelRatio
-        Layout.minimumHeight: 550 * PlasmaCore.Units.devicePixelRatio
+        Layout.minimumWidth: 600 * 1
+        Layout.minimumHeight: 550 * 1
         Layout.maximumWidth: Layout.minimumWidth
         Layout.maximumHeight: Layout.minimumHeight
 
@@ -159,8 +163,9 @@ PlasmaCore.Dialog {
     }
 
     Component.onCompleted: {
-        rootModel.refreshed.connect(refreshModel)
         kicker.reset.connect(reset);
-        reset();
+       // windowSystem.hidden.connect(reset);
+
+        rootModel.refresh();
     }
 }

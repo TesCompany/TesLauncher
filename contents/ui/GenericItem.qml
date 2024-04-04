@@ -18,12 +18,12 @@
  ****************************************************************************/
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
-import QtGraphicalEffects 1.0
+import Qt5Compat.GraphicalEffects
 import QtQuick.Window 2.2
 import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.kcoreaddons 1.0 as KCoreAddons
+import org.kde.coreaddons 1.0 as KCoreAddons
 import org.kde.kirigami 2.13 as Kirigami
 import QtQuick.Controls 2.15
 
@@ -31,8 +31,9 @@ import "../code/tools.js" as Tools
 
 Item {
   id: allItem
-  width: rect.width + 4 * PlasmaCore.Units.devicePixelRatio
-  height: rect.height + 4 * PlasmaCore.Units.devicePixelRatio
+  
+  width: rect.width + 4 * 1
+  height: rect.height + 4 * 1
 
   property bool highlighted: false
   property bool isDraging: false
@@ -43,17 +44,23 @@ Item {
   property int subIndex: 0
 
   signal highlightChanged
+  signal aboutToShowActionMenu(variant actionMenu)
 
   property bool hasActionList: ((model.favoriteId !== null)
-      || (("hasActionList" in model) && (model.hasActionList === true)))
+      || (("hasActionList" in model) && (model.hasActionList !== null)))
 
   property var triggerModel
 
+  onAboutToShowActionMenu: {
+    var actionList = allItem.hasActionList ? model.actionList : [];
+      //Tools.fillActionMenu(i18n, actionMenu, actionList, ListView.view.model.favoritesModel, model.favoriteId);
+    Tools.fillActionMenu(i18n, actionMenu, actionList, globalFavorites, model.favoriteId);
+  }
+
   function openActionMenu(x, y) {
-      var actionList = hasActionList ? model.actionList : [];
-      Tools.fillActionMenu(i18n, actionMenu, actionList, globalFavorites, model.favoriteId);
-      actionMenu.visualParent = allItem;
-      actionMenu.open(x, y);
+    aboutToShowActionMenu(actionMenu);      
+    actionMenu.visualParent = allItem;
+    actionMenu.open(x, y);
   }
   function actionTriggered(actionId, actionArgument) {
       var close = (Tools.triggerAction(triggerModel, index, actionId, actionArgument) === true);
@@ -78,21 +85,21 @@ Item {
   }
   Item {
     id: rect
-    x: 10 * PlasmaCore.Units.devicePixelRatio
-    y: 10 * PlasmaCore.Units.devicePixelRatio
-    width: main.width - 40 * PlasmaCore.Units.devicePixelRatio - allItem.x
-    height: 38 * PlasmaCore.Units.devicePixelRatio
+    x: 10 * 1
+    y: 10 * 1
+    width: main.width - 40 * 1 - allItem.x
+    height: 38 * 1
     
-    PlasmaCore.IconItem {
-      x: 9 * PlasmaCore.Units.devicePixelRatio
+   Kirigami.Icon {
+      x: 9 * 1
       anchors.verticalCenter: rect.verticalCenter
       id: appicon
-      width: 24 * PlasmaCore.Units.devicePixelRatio
+      width: 24 * 1
       height: width
       source: model.decoration
       PlasmaComponents.Label {
         id: appname
-        x: appicon.width + 9 * PlasmaCore.Units.devicePixelRatio
+        x: appicon.width + 9 * 1
         anchors.verticalCenter: appicon.verticalCenter
         text: ("name" in model ? model.name : model.display)
         color: main.textColor
@@ -135,16 +142,15 @@ Item {
       cursorShape: Qt.PointingHandCursor
       hoverEnabled: true
       onClicked: {
-        if (!isDraging) {
           if (mouse.button == Qt.RightButton) {
             if (allItem.hasActionList) {
               var mapped = mapToItem(allItem, mouse.x, mouse.y);
-              openActionMenu(mapped.x, mapped.y);
+              allItem.openActionMenu(mapped.x, mapped.y);
             }
           } else {
             trigger()
           }
-        }
+        
       }
       onReleased: {
         isDraging: false
@@ -183,7 +189,7 @@ Item {
 
       onActionClicked: {
           visualParent.actionTriggered(actionId, actionArgument);
-          root.toggle()
+          //root.toggle()
       }
   }
   Transition {

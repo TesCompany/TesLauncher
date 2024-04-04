@@ -18,8 +18,8 @@
  ****************************************************************************/
 import QtQuick 2.12
 
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.kquickcontrolsaddons 2.0
 
@@ -36,7 +36,7 @@ FocusScope {
   property alias currentIndex: listView.currentIndex
   property alias currentItem: listView.currentItem
   property alias contentItem: listView.contentItem
-
+  property Item flickableItem: listView
   property int subIndex: 0
 
   onFocusChanged: {
@@ -59,80 +59,74 @@ FocusScope {
     }
   }
 
-  Component {
-    id: genericItem
-    GenericItem {
+  ListView {
+    anchors.fill: parent
+    id: listView
+    currentIndex: -1
+    focus: true
+    // keyNavigationEnabled: true
+    // highlightFollowsCurrentItem: true
+    // highlightMoveDuration: 0
+    snapMode: ListView.SnapToItem
+    interactive: false
+    // clip: false
+
+
+    delegate: GenericItem {
       x: 20
       canNavigate: true
       canDrag: false
       triggerModel: listView.model
       subIndex: navGrid.subIndex
     }
-  }
-
-  PlasmaExtras.ScrollArea {
-    id: scrollArea
-
-    anchors.fill: parent
-    focus: true
-
-    ListView {
-      id: listView
-      currentIndex: -1
-      focus: true
-      keyNavigationEnabled: true
-      highlightFollowsCurrentItem: true
-      highlightMoveDuration: 0
-
-      delegate: genericItem
-
-      onCurrentIndexChanged: {
-        if (currentIndex != -1) {
-          focus = true;
-        }
+  
+    onCurrentIndexChanged: {
+      if (currentIndex != -1) {
+        focus = true;
       }
-      onModelChanged: {
-        currentIndex = -1;
+    }
+    onModelChanged: {
+      currentIndex = -1;
+    }
+    onFocusChanged: {
+      if (!focus) {
+        currentIndex = -1
       }
-      onFocusChanged: {
-        if (!focus) {
-          currentIndex = -1
-        }
+    }
+    Keys.onUpPressed: {
+      
+      if (runnerList.currentSubIndex != subIndex) {
+        repeater.itemAt(runnerList.currentSubIndex).nGrid.currentIndex = -1
       }
-      Keys.onUpPressed: {
-        if (runnerList.currentSubIndex != subIndex) {
-          repeater.itemAt(runnerList.currentSubIndex).nGrid.currentIndex = -1
-        }
-        if (currentIndex > 0) {
-          event.accepted = true;
-          currentIndex = currentIndex - 1
-          runnerList.currentMainIndex = currentIndex
-          runnerList.currentSubIndex = subIndex
-          positionViewAtIndex(currentIndex, ListView.Contain);
-        } else {
-          navGrid.keyNavUp();
-        }
+      if (currentIndex > 0) {
+        event.accepted = true;
+        currentIndex = currentIndex - 1
+        runnerList.currentMainIndex = currentIndex
+        runnerList.currentSubIndex = subIndex
+        positionViewAtIndex(currentIndex, ListView.Contain);
+      } else {
+        navGrid.keyNavUp();
       }
-      Keys.onDownPressed: {
-        if (runnerList.currentSubIndex != subIndex) {
-          repeater.itemAt(runnerList.currentSubIndex).nGrid.currentIndex = -1
-        }
-        if (currentIndex < count - 1) {
-          event.accepted = true;
-          currentIndex = currentIndex + 1;
-          runnerList.currentMainIndex = currentIndex
-          runnerList.currentSubIndex = subIndex
-          positionViewAtIndex(currentIndex, ListView.Contain);
-        } else {
-          navGrid.keyNavDown();
-        }
+    }
+    Keys.onDownPressed: {
+      if (runnerList.currentSubIndex != subIndex) {
+        repeater.itemAt(runnerList.currentSubIndex).nGrid.currentIndex = -1
       }
-      Keys.onPressed: {
-        if (event.key == Qt.Key_Enter || event.key == Qt.Key_Return) {
-          event.accepted = true;
-          if (currentItem){
-            currentItem.trigger()
-          }
+      if (currentIndex < count - 1) { // si no ha llegado al ultimo elemento de la lists incrementa currentIndex para pasar al siguiente elemento de la lista
+        event.accepted = true;
+        currentIndex = currentIndex + 1;
+        runnerList.currentMainIndex = currentIndex
+        runnerList.currentSubIndex = subIndex
+        positionViewAtIndex(currentIndex, ListView.Contain);
+      } else {
+        navGrid.keyNavDown();
+      }
+    }
+    Keys.onPressed: {
+      if (event.key == Qt.Key_Enter || event.key == Qt.Key_Return) {
+        event.accepted = true;
+        if (currentItem){
+          currentItem.trigger()
         }
       }
     }

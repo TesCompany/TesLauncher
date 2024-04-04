@@ -29,16 +29,28 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
-import QtGraphicalEffects 1.0
+import Qt5Compat.GraphicalEffects
+import org.kde.kirigami as Kirigami
 
-PlasmaExtras.ScrollArea {
+ScrollView {
   id: runnerList
-  focus: true
+
+  anchors { top: parent.top }
+
+  width: parent.width
+  height: parent.height
+
+
+
+  contentWidth: - 1 //no horizontal scrolling
+
+  
+//  focus: true
   property alias model: repeater.model
   property alias count: repeater.count
 
-  horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
-  verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
+  // ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+  // ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
   property int currentMainIndex: 0
   property int currentSubIndex: 0
@@ -80,8 +92,9 @@ PlasmaExtras.ScrollArea {
     repeater.itemAt(currentSubIndex).nGrid.currentItem.trigger()
   }
 
+
   Column {
-    x: -10 * PlasmaCore.Units.devicePixelRatio
+    x: -10 * 1
     Repeater {
       id: repeater
       delegate:
@@ -97,18 +110,18 @@ PlasmaExtras.ScrollArea {
           height: image.height
           Image {
             id: image
-            x: 20 * PlasmaCore.Units.devicePixelRatio
-            source: repeater.model.modelForRow(index).description === 'Command Line' ? "icons/feather/code.svg" : repeater.model.modelForRow(index).description == 'Desktop Search' ? "icons/feather/search.svg" : "icons/feather/file-text.svg"
-            width: 15 * PlasmaCore.Units.devicePixelRatio
+            x: 20 * 1
+            source: repeater.model.modelForRow(index).description === 'Command Line' ? "icons/feather/code.svg" : repeater.model.modelForRow(index).description == 'File Search' ? "icons/feather/search.svg" : "icons/feather/file-text.svg"
+            width: 15 * 1
             height: width
             //visible: repeater.model.modelForRow(index).count > 0
             PlasmaComponents.Label {
-              x: parent.width + 10 * PlasmaCore.Units.devicePixelRatio
+              x: parent.width + 10 * 1
               anchors.verticalCenter: parent.verticalCenter
-              text: repeater.model.modelForRow(index).description
+              text: repeater.model.modelForRow(index).name
               color: main.textColor
               font.family: main.textFont
-              font.pixelSize: 12 * PlasmaCore.Units.devicePixelRatio
+              font.pointSize: main.textSize + 2
             }
             ColorOverlay {
               visible: true
@@ -121,11 +134,12 @@ PlasmaExtras.ScrollArea {
         NavGrid {
           id: navGrid
           width: runnerList.width
-          height: Math.ceil(count * (42 * PlasmaCore.Units.devicePixelRatio )) + 10 * PlasmaCore.Units.devicePixelRatio
+          height: Math.ceil(count * (42 * 1 )) + 10 * 1
           anchors.top: headerLabel.bottom
           subIndex: index
           triggerModel: repeater.model.modelForRow(index)
-
+          x: 20
+          
           onFocusChanged: {
             if (focus) {
               runnerList.focus = true;
@@ -145,21 +159,20 @@ PlasmaExtras.ScrollArea {
               return
             }
             if (index == 0 && currentIndex === 0) {
-              runnerList.flickableItem.contentY = 0;
+              nGrid.flickableItem.contentY = 0;
               return;
             }
             var y = currentItem.y;
-            y = contentItem.mapToItem(runnerList.flickableItem.contentItem, 0, y).y;
-
-            if (y < runnerList.flickableItem.contentY) {
-              runnerList.flickableItem.contentY = y;
+            y = contentItem.mapToItem(runnerList.contentItem, 0, y).y;
+            if (y < runnerList.contentItem.contentY) {
+              flickableItem.contentY = y;
             } else {
-              y += currentItem.height + 10 * PlasmaCore.Units.devicePixelRatio + 15 * PlasmaCore.Units.devicePixelRatio;
-              y -= runnerList.flickableItem.contentY;
-              y -= runnerList.viewport.height;
+              y += currentItem.height + 20 * 1 + 15 * 1;
+              y -= runnerList.contentItem.contentY;
+              y -= runnerList.height;
 
               if (y > 0) {
-                runnerList.flickableItem.contentY += y;
+                runnerList.contentItem.contentY += y;
               }
             }
           }
@@ -187,11 +200,12 @@ PlasmaExtras.ScrollArea {
             }
           }
         }
-        Kicker.WheelInterceptor {
-          anchors.fill: navGrid
-          z: 1
-          destination: findWheelArea(runnerList.flickableItem)
-        }
+        // Kicker.WheelInterceptor {
+        //   anchors.fill: navGrid
+        //  // z: -1
+        //   destination: findWheelArea(runnerList.flickableItem)
+        // }
+
       }
     }
   }

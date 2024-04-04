@@ -19,8 +19,9 @@
 import QtQuick 2.12
 import QtQuick.Window 2.2
 import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.kirigami 2.13 as Kirigami
-import org.kde.kquickcontrolsaddons 2.0 as KQuickAddons
+import org.kde.kirigami as Kirigami
+import org.kde.kirigamiaddons.components 1.0 as KirigamiComponents
+import org.kde.kcmutils as KCM
 
 PlasmaCore.Dialog { //cosmic background noise is less random than the placement of this dialog
   id: avatarContainer
@@ -60,19 +61,19 @@ PlasmaCore.Dialog { //cosmic background noise is less random than the placement 
     anchors.centerIn: parent
     width: avatarWidth
     height: avatarWidth
-    Kirigami.Avatar {
+    KirigamiComponents.AvatarButton {
       id: mainFaceIcon
       source: kuser.faceIconUrl
       anchors {
         fill: parent
-        margins: PlasmaCore.Units.smallSpacing
+        margins: Kirigami.Units.smallSpacing
       }
       MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         hoverEnabled: false
         onClicked: {
-          KQuickAddons.KCMShell.openSystemSettings("kcm_users")
+          KCM.KCMLauncher.openSystemSettings("kcm_users")
           root.toggle()
         }
       }

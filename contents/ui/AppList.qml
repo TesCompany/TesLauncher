@@ -17,13 +17,22 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .          *
  ****************************************************************************/
 
-import QtGraphicalEffects 1.0
+
+// Agregar condicion para que los categproes repeater solo se muestren cuando el index sea diferente a 0 para
+//evitar que aparesca el listado de a b c de .. abajo de todas las aplicaciones
+
+import Qt5Compat.GraphicalEffects
 
 import QtQuick 2.12
 import QtQuick.Controls 2.15
 
-import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents
+
+import org.kde.kirigami as Kirigami
+
+import org.kde.draganddrop 2.0
+
 
 ScrollView {
   id: scrollView
@@ -34,16 +43,16 @@ ScrollView {
   width: parent.width
   height: parent.height
 
-  contentWidth: - 1 //no horizontal scrolling
+  contentWidth: availableWidth //no horizontal scrolling
 
   property bool grabFocus: false
   property bool showDescriptions: false
-  property int iconSize: units.iconSizes.medium
+  property int iconSize: Kirigami.Units.iconSizes.medium
 
   property var pinnedModel: [globalFavorites, rootModel.modelForRow(0), rootModel.modelForRow(1)]
-  property var allAppsModel: [rootModel.modelForRow(2)]
+  property QtObject allAppsModel
 
-  property var currentStateIndex: plasmoid.configuration.defaultPage
+  property var currentStateIndex: Plasmoid.configuration.defaultPage
 
   property bool hasListener: false
   property bool isRight: true
@@ -57,7 +66,7 @@ ScrollView {
     var categoryName;
     var categoryIcon;
 
-    for (var i = 2; i < rootModel.count - 2; i++) {
+    for (var i = 1; i < rootModel.count - 2; i++) {
       categoryName  = rootModel.data(rootModel.index(i, 0), Qt.DisplayRole);
       categoryIcon  = rootModel.data(rootModel.index(i, 0), Qt.DecorationRole);
       categories.push({
@@ -66,7 +75,7 @@ ScrollView {
         icon: categoryIcon
       });
     }
-
+    scrollView.allAppsModel =  rootModel.modelForRow(1)
     return categories;
   }
 
@@ -74,7 +83,7 @@ ScrollView {
 
   function updateModels() {
       item.pinnedModel = [globalFavorites, rootModel.modelForRow(0), rootModel.modelForRow(1)]
-      item.allAppsModel = [rootModel.modelForRow(2)]
+      item.allAppsModel = rootModel.modelForRow(1)
   }
 
   function reset(){
@@ -107,37 +116,52 @@ ScrollView {
     width: parent.width
     onPositioningComplete: {
       scrollView.contentHeight = height
-      if (height < backdrop.height) {
-        scrollView.contentHeight = backdrop.height + 1
+      if (height < appList.height) {
+        scrollView.contentHeight = appList.height
       }
     }
 
-    Flow { //Favorites
-      id: flow
-      width: scrollView.width - 10 * PlasmaCore.Units.devicePixelRatio
-      spacing: 12
-      leftPadding: 20
+    DropArea {
+      
+      width: flow.width
+      height:flow.height
       visible: !main.showAllApps
-      Repeater {
-        model: pinnedModel[0]
-        delegate:
-        FavoriteItem {
-          id: favitem
+      onDragMove: event => {
+
+          var above = flow.childAt(event.x, event.y);
+
+          if (above && above !== kicker.dragSource && dragSource.parent == flow) {
+              repeater.model.moveRow(dragSource.itemIndex, above.itemIndex);
+          }
+
+      }
+      Flow { //Favorites
+        id: flow
+        width: scrollView.width 
+        spacing: 12
+        leftPadding: 25
+        visible: !main.showAllApps
+        Repeater {
+          id: repeater
+          model: globalFavorites
+          delegate:
+          FavoriteItem {
+            id: favitem
+          }
         }
       }
     }
 
-
-    PlasmaCore.IconItem {
+    Kirigami.Icon {
       id: sortingImage
-      width: 15 * PlasmaCore.Units.devicePixelRatio
+      width: 15 * 1
       height: width
       visible: main.showAllApps
       source: scrollView.currentSelectedCategory.icon
 
       PlasmaComponents.Label {
         id: sortingLabel
-        x: parent.width + 10 * PlasmaCore.Units.devicePixelRatio
+        x: parent.width + 10 * 1
         anchors.verticalCenter: parent.verticalCenter
         text: i18n(scrollView.currentSelectedCategory.name)
         color: main.textColor
@@ -146,7 +170,7 @@ ScrollView {
       }
       MouseArea {
         id: mouseArea
-        width: parent.width + sortingLabel.width + 5 * PlasmaCore.Units.devicePixelRatio
+        width: parent.width + sortingLabel.width + 5
         height: parent.height
         cursorShape: Qt.PointingHandCursor
         hoverEnabled: true
@@ -180,22 +204,23 @@ ScrollView {
     Item { //Spacer
       id: spacer
       width: 1
-      height: 10 * PlasmaCore.Units.devicePixelRatio
+      height: 10 * 1
     }
 
       Grid {
         id: allAppsGrid
-        x: - 10 * PlasmaCore.Units.devicePixelRatio
+        x: - 10 * 1
         columns: 1
-        width: scrollView.width - 10 * PlasmaCore.Units.devicePixelRatio
+        width: scrollView.width - 10 * 1
         visible: opacity > 0 && main.showAllApps
         Repeater {
           id: allAppsRepeater
-          model: allAppsModel[0]
+          model: allAppsModel
           Repeater {
             id: repeater2
             model: allAppsRepeater.model.modelForRow(index)
-            GenericItem {
+           delegate:
+          GenericItem {
               id: genericItem
               triggerModel: repeater2.model
             }
@@ -205,7 +230,7 @@ ScrollView {
         State {
           name: "hidden"; when: (currentStateIndex != 0)
           PropertyChanges { target: allAppsGrid; opacity: 0.0 }
-          PropertyChanges { target: allAppsGrid; x: (!isRight ? -20 * PlasmaCore.Units.devicePixelRatio : 0) }
+          PropertyChanges { target: allAppsGrid; x: (!isRight ? -20 * 1 : 0) }
         },
         State {
           name: "shown"; when: (currentStateIndex == 0)
@@ -215,13 +240,13 @@ ScrollView {
         transitions: [
           Transition {
             to: "hidden"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: -10 * PlasmaCore.Units.devicePixelRatio; duration: 80;easing: Easing.InQuart}
+            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
+            PropertyAnimation { properties: 'x'; from: -10 * 1; duration: 80;easing.type: Easing.InQuart}
           },
           Transition {
             to: "shown"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * PlasmaCore.Units.devicePixelRatio : 0); duration: 80; easing: Easing.InQuart}
+            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
+            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * 1 : 0); duration: 80; easing.type: Easing.InQuart}
           }
         ]
         onStateChanged: {
@@ -234,7 +259,7 @@ ScrollView {
       Grid { //Categories
         id: appCategories
         columns: 1
-        width: scrollView.width - 10 * PlasmaCore.Units.devicePixelRatio
+        width: scrollView.width - 10 * 1
         visible: opacity > 0 && main.showAllApps
         Repeater {
           id: categoriesRepeater
@@ -246,25 +271,25 @@ ScrollView {
         }
         states: [
         State {
-          name: "hidden"; when: (currentStateIndex % 2 === 1)
+          name: "hidden"; when: (currentStateIndex == 0 || currentStateIndex % 2 === 1)
           PropertyChanges { target: appCategories; opacity: 0.0 }
-          PropertyChanges { target: appCategories; x: (isRight ? -20 * PlasmaCore.Units.devicePixelRatio : 0) }
+          PropertyChanges { target: appCategories; x: (isRight ? -20 * 1 : 0) }
         },
         State {
-          name: "shown"; when: (currentStateIndex % 2 === 0)
+          name: "shown"; when: (currentStateIndex != 0 && currentStateIndex % 2 === 0)
           PropertyChanges { target: appCategories; opacity: 1.0 }
-          PropertyChanges { target: appCategories; x: -10 * PlasmaCore.Units.devicePixelRatio }
+          PropertyChanges { target: appCategories; x: -10 * 1 }
         }]
         transitions: [
           Transition {
             to: "hidden"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: -10 * PlasmaCore.Units.devicePixelRatio; duration: 80; easing: Easing.InQuart}
+            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
+            PropertyAnimation { properties: 'x'; from: -10 * 1; duration: 80; easing.type: Easing.InQuart}
           },
           Transition {
             to: "shown"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * PlasmaCore.Units.devicePixelRatio : 0); duration: 80; easing: Easing.InQuart}
+            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
+            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * 1 : 0); duration: 80; easing.type: Easing.InQuart}
           }
         ]
         onStateChanged: {
@@ -278,7 +303,7 @@ ScrollView {
       Grid { //Categories
         id: appCategories2
         columns: 1
-        width: scrollView.width - 10 * PlasmaCore.Units.devicePixelRatio
+        width: scrollView.width - 10 * 1
         visible: opacity > 0 && main.showAllApps
         Repeater {
           id: categoriesRepeater2
@@ -290,25 +315,25 @@ ScrollView {
         }
         states: [
         State {
-          name: "hidden"; when: (currentStateIndex % 2 === 0)
+          name: "hidden"; when: (currentStateIndex == 0 || currentStateIndex % 2 === 0)
           PropertyChanges { target: appCategories2; opacity: 0.0 }
-          PropertyChanges { target: appCategories2; x: (isRight ? -20 * PlasmaCore.Units.devicePixelRatio : 0) }
+          PropertyChanges { target: appCategories2; x: (isRight ? -20 * 1 : 0) }
         },
         State {
-          name: "shown"; when: (currentStateIndex % 2 === 1)
+          name: "shown"; when: (currentStateIndex != 0 && currentStateIndex % 2 === 1)
           PropertyChanges { target: appCategories2; opacity: 1.0 }
-          PropertyChanges { target: appCategories2; x: -10  * PlasmaCore.Units.devicePixelRatio}
+          PropertyChanges { target: appCategories2; x: -10  * 1}
         }]
         transitions: [
           Transition {
             to: "hidden"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: -10 * PlasmaCore.Units.devicePixelRatio; duration: 80; easing: Easing.InQuart}
+            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
+            PropertyAnimation { properties: 'x'; from: -10 * 1; duration: 80; easing.type: Easing.InQuart}
           },
           Transition {
             to: "shown"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * PlasmaCore.Units.devicePixelRatio : 0);duration: 80; easing: Easing.InQuart}
+            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
+            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * 1 : 0);duration: 80; easing.type: Easing.InQuart}
           }
         ]
         onStateChanged: {
@@ -321,7 +346,7 @@ ScrollView {
 
     Item { //Spacer
       width: 1
-      height: 20 * PlasmaCore.Units.devicePixelRatio
+      height: 20 * 1
     }
   }
 }

@@ -21,8 +21,8 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import QtQuick.Controls 2.5
 import QtQuick 2.0
 import QtQuick.Window 2.2
-import QtGraphicalEffects 1.0
-import org.kde.kquickcontrolsaddons 2.0 as KQuickAddons
+import Qt5Compat.GraphicalEffects
+import org.kde.kcmutils as KCM
 
 Item {
   property var iconSize
@@ -58,7 +58,7 @@ Item {
       }
     }
     onClicked: {
-      KQuickAddons.KCMShell.openSystemSettings("kcm_quick")
+      KCM.KCMLauncher.openSystemSettings("kcm_landingpage")
       root.toggle()
       //plasmoid.action("configure").trigger() //might implement later
     }

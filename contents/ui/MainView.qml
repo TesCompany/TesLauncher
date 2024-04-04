@@ -18,10 +18,13 @@
  ****************************************************************************/
 import QtQuick 2.15
 import QtQuick.Layouts 1.12
-import QtGraphicalEffects 1.12
-import org.kde.plasma.core 2.0 as PlasmaCore
+import Qt5Compat.GraphicalEffects
+import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents
-import org.kde.kcoreaddons 1.0 as KCoreAddons
+import org.kde.coreaddons 1.0 as KCoreAddons
+
+import org.kde.plasma.plasma5support 2.0 as P5Support
+import org.kde.kirigami as Kirigami
 
 Item {
   id: main
@@ -29,12 +32,12 @@ Item {
   property bool searching: (searchBar.text != "")
   signal  newTextQuery(string text)
 
-  readonly property color textColor: PlasmaCore.Theme.textColor
-  readonly property string textFont: plasmoid.configuration.useSystemFontSettings ? PlasmaCore.Theme.defaultFont : "SF Pro Text"
-  readonly property real textSize: plasmoid.configuration.useSystemFontSettings ? PlasmaCore.Theme.defaultFont.pointSize : 11
-  readonly property color bgColor: PlasmaCore.Theme.backgroundColor
-  readonly property color highlightColor: PlasmaCore.Theme.highlightColor
-  readonly property color highlightedTextColor: PlasmaCore.Theme.highlightedTextColor
+  readonly property color textColor: Kirigami.Theme.textColor
+  readonly property string textFont: plasmoid.configuration.useSystemFontSettings ? Kirigami.Theme.defaultFont : "SF Pro Text"
+  readonly property real textSize: plasmoid.configuration.useSystemFontSettings ? Kirigami.Theme.defaultFont.pointSize : 11
+  readonly property color bgColor: Kirigami.Theme.backgroundColor
+  readonly property color highlightColor: Kirigami.Theme.highlightColor
+  readonly property color highlightedTextColor: Kirigami.Theme.highlightedTextColor
   readonly property bool isTop: plasmoid.location == PlasmaCore.Types.TopEdge & plasmoid.configuration.launcherPosition != 2 & !plasmoid.configuration.floating
 
   readonly property color glowColor1: plasmoid.configuration.glowColor == 0 ? "#D300DC" :
@@ -46,11 +49,14 @@ Item {
 
   property bool showAllApps: false
 
+  property real innerPadding: 7.5
+  property real itemsWidth: width - (innerPadding * 4)
+
   KCoreAddons.KUser {
       id: kuser
   }
 
-  PlasmaCore.DataSource {
+  P5Support.DataSource {
       id: pmEngine
       engine: "powermanagement"
       connectedSources: ["PowerDevil", "Sleep States"]
@@ -79,9 +85,9 @@ Item {
   Rectangle {
     id: backdrop
     x: 0
-    y: isTop ? 0 : 125 * PlasmaCore.Units.devicePixelRatio
+    y: isTop ? 0 : 125 * 1
     width: main.width
-    height: isTop ? main.height - 200 * PlasmaCore.Units.devicePixelRatio : main.height - y - (searchBarContainer.height + 20)
+    height: isTop ? main.height - 200 * 1 : main.height - y - (searchBarContainer.height + 20)
     color: bgColor
     opacity: 0
   }
@@ -94,7 +100,7 @@ Item {
       id: floatingAvatar
       //visualParent: root
       isTop: main.isTop
-      avatarWidth: 125 * PlasmaCore.Units.devicePixelRatio
+      avatarWidth: 125 * 1
       visible: root.visible && !isTop ? true : root.visible && plasmoid.configuration.floating ? true : false
     }
   }
@@ -104,7 +110,7 @@ Item {
       id: powerSettings
       x: main.width - width - iconSize / 2
       y: isTop ? main.height - 2 * height - iconSize / 2 : iconSize / 2
-      iconSize: 20 * PlasmaCore.Units.devicePixelRatio
+      iconSize: 20 * 1
     }
   }
   //Greeting
@@ -113,11 +119,11 @@ Item {
     Text {
       id: nameLabel
       x: main.width / 2 - width / 2 //This centeres the Text
-      y: isTop ? main.height - height - 135 * PlasmaCore.Units.devicePixelRatio : 70 * PlasmaCore.Units.devicePixelRatio
+      y: isTop ? main.height - height - 135 * 1 : 70 * 1
       text: plasmoid.configuration.enableGreeting && plasmoid.configuration.customGreeting ? plasmoid.configuration.customGreeting : plasmoid.configuration.enableGreeting ? 'Hi, ' + kuser.fullName : i18n("%1@%2", kuser.loginName, kuser.host)
       color: textColor
       font.family: textFont
-      font.pixelSize: 25 * PlasmaCore.Units.devicePixelRatio
+      font.pixelSize: 25 * 1
       font.bold: true
     }
     // Text shadow for greeting label
@@ -137,16 +143,16 @@ Item {
   Item {
     Rectangle {
       id: searchBarContainer
-      x: headerLabel.width * PlasmaCore.Units.devicePixelRatio
-      y: isTop ? main.height - height - (2 * powerSettings.height + powerSettings.iconSize / 2) - 10 * PlasmaCore.Units.devicePixelRatio : main.height - (height + x) * PlasmaCore.Units.devicePixelRatio
-      width: main.width - 2 * x
-      height: 45 * PlasmaCore.Units.devicePixelRatio
+      y: isTop ? main.height - height - (2 * powerSettings.height + powerSettings.iconSize / 2) - 10 * 1 : main.height - (height + innerPadding * 2) 
+      width: main.width - (root.margins.left*2)
+      anchors.left: parent.left
+      height: 45
       radius: 8
-      color: Qt.lighter(theme.backgroundColor) // better contrast color 
+      color: Qt.lighter(Kirigami.Theme.backgroundColor, 1.3) // better contrast color 
       Image {
         id: searchIcon
-        x: 15 * PlasmaCore.Units.devicePixelRatio
-        width: 15 * PlasmaCore.Units.devicePixelRatio
+        x: 15
+        width: 15
         height: width
         anchors.verticalCenter: parent.verticalCenter
         source: 'icons/feather/search.svg'
@@ -158,8 +164,8 @@ Item {
         }
       }
       Rectangle {
-        x: 45 * PlasmaCore.Units.devicePixelRatio
-        width: parent.width - 60 * PlasmaCore.Units.devicePixelRatio
+        x: parent.x + 45
+        width: parent.width - 60
         height: searchBar.height
         anchors.verticalCenter: parent.verticalCenter
         clip: true
@@ -167,7 +173,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.IBeamCursor
-            hoverEnabled: false
+            hoverEnabled: true
         }
         TextInput {
           id: searchBar
@@ -176,13 +182,13 @@ Item {
           focus: true
           color: textColor
           selectByMouse: true
-          selectionColor: highlightedTextColor
+          selectionColor: highlightColor
           font.family: textFont
-          font.pixelSize: 13 * PlasmaCore.Units.devicePixelRatio
+          font.pixelSize: 13 * 1
           Text {
             anchors.fill: parent
             text: i18n("Search your computer")
-            color: PlasmaCore.Theme.disabledTextColor
+            color: Kirigami.Theme.disabledTextColor
             visible: !parent.text
           }
           onTextChanged: {
@@ -236,8 +242,8 @@ Item {
     width: 15
     height: width
     y: backdrop.y + width
-    anchors.leftMargin: units.largeSpacing
-    anchors.topMargin:  units.largeSpacing
+    anchors.leftMargin: Kirigami.Units.largeSpacing
+    anchors.topMargin:  Kirigami.Units.largeSpacing
     anchors.left: parent.left
     
     PlasmaComponents.Label {
@@ -275,9 +281,9 @@ Item {
       LayoutMirroring.childrenInherit: !showAllApps 
       flat: false
       background: Rectangle {
-        color: Qt.lighter(theme.backgroundColor)
+        color: Qt.lighter(Kirigami.Theme.backgroundColor)
         border.width: 1
-        border.color: Qt.darker(theme.backgroundColor, 1.14)
+        border.color: Qt.darker(Kirigami.Theme.backgroundColor, 1.14)
         radius: plasmoid.configuration.enableGlow ? height / 2 : 5
 
         Rectangle {
@@ -309,24 +315,24 @@ Item {
         }
 
       }
-      topPadding: 4
+      topPadding: 5
       bottomPadding: topPadding
       leftPadding: 8
       rightPadding: 8
       icon{
           width: height
-          height: visible ? units.iconSizes.small : 0
+          height: visible ? Kirigami.Units.iconSizes.small : 0
           name: showAllApps ? "go-previous" : "go-next"
       }
 
       anchors {
-        topMargin: units.smallSpacing
+        topMargin: Kirigami.Units.smallSpacing
         verticalCenter: headerLabel.verticalCenter
-        rightMargin: units.largeSpacing 
-        leftMargin: units.largeSpacing 
-        left: parent.left
+        // rightMargin: Kirigami.Units.largeSpacing 
+        // leftMargin: Kirigami.Units.largeSpacing 
+        //right: parent.right
       }
-      x: -units.smallSpacing
+      x: main.width - (width + Kirigami.Units.largeSpacing + root.margins.right)
       visible: !searching
   }
   // All apps button shadow
@@ -341,37 +347,38 @@ Item {
       source: mainsecLabelGrid
       visible: plasmoid.configuration.enableGlow && !searching
   }
- 
+      
   //List of Apps
   AppList {
     id: appList
     state: "visible"
     anchors.top: headerLabel.bottom
     anchors.topMargin: showAllApps ? headerLabel.width : headerLabel.width * 1.5
-    width: main.width - 30 * PlasmaCore.Units.devicePixelRatio
+    
+    width: itemsWidth
     height: backdrop.height - (headerLabel.height * 3.4) 
     visible: opacity > 0
     states: [
     State {
       name: "visible"; when: (!searching)
       PropertyChanges { target: appList; opacity: 1.0 }
-      PropertyChanges { target: appList; x: 25 * PlasmaCore.Units.devicePixelRatio }
+      PropertyChanges { target: appList; x: innerPadding }
     },
     State {
       name: "hidden"; when: (searching)
       PropertyChanges { target: appList; opacity: 0.0}
-      PropertyChanges { target: appList; x: 5 * PlasmaCore.Units.devicePixelRatio}
+      PropertyChanges { target: appList; x: 5 * 1}
     }]
     transitions: [
       Transition {
         to: "visible"
         PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-        PropertyAnimation {properties: 'x'; from: 5 * PlasmaCore.Units.devicePixelRatio; duration: 100; easing.type: Easing.OutQuart}
+        PropertyAnimation {properties: 'x'; from: 5 * 1; duration: 100; easing.type: Easing.OutQuart}
       },
       Transition {
         to: "hidden"
         PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-        PropertyAnimation {properties: 'x'; from: 25 * PlasmaCore.Units.devicePixelRatio; duration: 100; easing.type: Easing.OutQuart}
+        PropertyAnimation {properties: 'x'; from: 25 * 1; duration: 100; easing.type: Easing.OutQuart}
       }
     ]
   }
@@ -382,29 +389,29 @@ Item {
     visible: opacity > 0
     anchors.top: headerLabel.bottom
     anchors.topMargin: headerLabel.width 
-    width: main.width - 30 * PlasmaCore.Units.devicePixelRatio
+    width: main.width - 30 * 1
     height: backdrop.height - (headerLabel.height * 3.5)
     states: [
     State {
       name: "visible"; when: (searching)
       PropertyChanges { target: runnerList; opacity: 1.0 }
-      PropertyChanges { target: runnerList; x: 20  * PlasmaCore.Units.devicePixelRatio}
+      PropertyChanges { target: runnerList; x: 20  * 1}
     },
     State {
       name: "hidden"; when: (!searching)
       PropertyChanges { target: runnerList; opacity: 0.0}
-      PropertyChanges { target: runnerList; x: 40 * PlasmaCore.Units.devicePixelRatio}
+      PropertyChanges { target: runnerList; x: 40 * 1}
     }]
     transitions: [
       Transition {
         to: "visible"
         PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-        PropertyAnimation {properties: 'x'; from: 80 * PlasmaCore.Units.devicePixelRatio; duration: 100; easing.type: Easing.OutQuart}
+        PropertyAnimation {properties: 'x'; from: 80 * 1; duration: 100; easing.type: Easing.OutQuart}
       },
       Transition {
         to: "hidden"
         PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-        PropertyAnimation {properties: 'x'; from: 20 * PlasmaCore.Units.devicePixelRatio; duration: 100; easing.type: Easing.OutQuart}
+        PropertyAnimation {properties: 'x'; from: 20 * 1; duration: 100; easing.type: Easing.OutQuart}
       }
     ]
   }
