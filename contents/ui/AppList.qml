@@ -26,6 +26,8 @@ import Qt5Compat.GraphicalEffects
 import QtQuick 2.12
 import QtQuick.Controls 2.15
 
+import QtQuick.Layouts 1.0
+
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents
 
@@ -135,11 +137,17 @@ ScrollView {
           }
 
       }
-      Flow { //Favorites
+      GridLayout { //Favorites
         id: flow
         width: scrollView.width 
-        spacing: 12
-        leftPadding: 25
+        columns: implicitW < parent.width ? -1 : parent.width / columnImplicitWidth
+        rowSpacing: 2
+        columnSpacing: 2
+        anchors.horizontalCenter: scrollView.horizontalCenter
+
+        property int columnImplicitWidth: children[0].width + columnSpacing
+        property int implicitW: repeater.count * columnImplicitWidth
+
         visible: !main.showAllApps
         Repeater {
           id: repeater
