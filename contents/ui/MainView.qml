@@ -145,10 +145,10 @@ Item {
       id: searchBarContainer
       y: isTop ? main.height - height - (2 * powerSettings.height + powerSettings.iconSize / 2) - 10 * 1 : main.height - (height + innerPadding * 2) 
       width: main.width - (root.margins.left*2)
-      anchors.left: parent.left
+      x: root.margins.left      
       height: 45
       radius: 8
-      color: Qt.lighter(Kirigami.Theme.backgroundColor, 1.3) // better contrast color 
+      color: Qt.lighter(Kirigami.Theme.backgroundColor, 1.5) // better contrast color 
       Image {
         id: searchIcon
         x: 15
