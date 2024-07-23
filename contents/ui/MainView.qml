@@ -114,30 +114,12 @@ Item {
     }
   }
   //Greeting
-  Item {
+  Greeting {
     id: greeting
-    Text {
-      id: nameLabel
-      x: main.width / 2 - width / 2 //This centeres the Text
-      y: isTop ? main.height - height - 135 * 1 : 70 * 1
-      text: plasmoid.configuration.enableGreeting && plasmoid.configuration.customGreeting ? plasmoid.configuration.customGreeting : plasmoid.configuration.enableGreeting ? 'Hi, ' + kuser.fullName : i18n("%1@%2", kuser.loginName, kuser.host)
-      color: textColor
-      font.family: textFont
-      font.pixelSize: 25 * 1
-      font.bold: true
-    }
-    // Text shadow for greeting label
-    DropShadow {
-        anchors.fill: nameLabel
-        cached: true
-        horizontalOffset: 0
-        verticalOffset: 0
-        radius: 10.0
-        samples: 16
-        color: glowColor1
-        source: nameLabel
-        visible: plasmoid.configuration.enableGlow
-    }
+    visible: floatingAvatar.visible
+    x: main.width / 2 - textWidth / 2 //This centeres the Text
+    y: 70 
+    textSize: 25 
   }
   //Searchbar
   Item {
