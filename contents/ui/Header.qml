@@ -26,13 +26,13 @@ import org.kde.kcmutils as KCM
 
 Item {
   property var iconSize
-  width: iconSize * 3.75
+  width: iconSize * 3.55
   height: iconSize
   PlasmaComponents.RoundButton {
     id: settingsButton
     visible: true
     flat: true
-    height: iconSize * 2
+    height: iconSize * 1.5
     width: height
     anchors.left: parent.left
 
@@ -67,7 +67,7 @@ Item {
     id: powerOffButton
     visible: true
     flat: true
-    height: iconSize * 2
+    height: iconSize * 1.5
     width: height
     anchors.right: parent.right
 

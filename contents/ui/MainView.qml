@@ -85,9 +85,9 @@ Item {
   Rectangle {
     id: backdrop
     x: 0
-    y: isTop ? 0 : 125 * 1
+    y: 125 * 1
     width: main.width
-    height: isTop ? main.height - 200 * 1 : main.height - y - (searchBarContainer.height + 20)
+    height: isTop ? main.height - y - Kirigami.Units.largeSpacing : main.height - y - (searchBarContainer.height + 20)
     color: bgColor
     opacity: 0
   }
@@ -105,14 +105,50 @@ Item {
     }
   }
   //Power & Settings
-  Item {
+  RowLayout {
+    id: headerBar
+    width: main.width
+    UserAvatar {
+      width: plasmoid.configuration.enableGlow ? 45 : 50
+      height: width
+      Layout.leftMargin: Kirigami.Units.mediumSpacing
+      Layout.topMargin: Kirigami.Units.mediumSpacing
+      visible: !floatingAvatar.visible
+    }
+
+    Greeting {
+      id: greetingTop
+      Layout.fillHeight: false
+      Layout.fillWidth: true
+      Layout.topMargin: -10
+      Layout.leftMargin: 10
+      Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+      textSize: main.fontSize
+      visible: !floatingAvatar.visible
+    }
+
     Header {
       id: powerSettings
-      x: main.width - width - iconSize / 2
-      y: isTop ? main.height - 2 * height - iconSize / 2 : iconSize / 2
-      iconSize: 20 * 1
+      iconSize: 20 
+      Layout.fillHeight: false
+      Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+      Layout.rightMargin: Kirigami.Units.mediumSpacing
+      Layout.topMargin: isTop ?  Kirigami.Units.smallSpacing : Kirigami.Units.largeSpacing
     }
+
   }
+
+  Rectangle {
+    id: headerBarFill
+    height: headerBar.height + searchBarContainer.height + 25
+    width: root.width
+    color: Qt.rgba(main.bgColor.r, main.bgColor.g, main.bgColor.b, 0.3)
+    x: 0
+    y: 0
+    visible: isTop
+    z: -1
+  }
+  
   //Greeting
   Greeting {
     id: greeting
@@ -125,7 +161,7 @@ Item {
   Item {
     Rectangle {
       id: searchBarContainer
-      y: isTop ? main.height - height - (2 * powerSettings.height + powerSettings.iconSize / 2) - 10 * 1 : main.height - (height + innerPadding * 2) 
+      y: isTop ? headerBar.height + 10 : main.height - (height + innerPadding * 2) 
       width: main.width - (root.margins.left*2)
       x: root.margins.left      
       height: 45
