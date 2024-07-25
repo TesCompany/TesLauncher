@@ -236,6 +236,12 @@ PlasmoidItem {
         imagePath: "widgets/panel-background"
     }
 
+    KSvg.FrameSvgItem {
+        id: dialogSvg
+        visible: false
+        imagePath: "dialogs/background"
+    }
+
     PlasmaComponents.Label {
         id: toolTipDelegate
 

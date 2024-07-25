@@ -34,7 +34,7 @@ Item {
 
   property int iconSize: Kirigami.Units.gridUnit * 3.2
 
-  width:  100
+  width:  112
   height: iconSize + Kirigami.Units.smallSpacing + appname.implicitHeight + 10
 
   signal itemActivated(int index, string actionId, string argument)

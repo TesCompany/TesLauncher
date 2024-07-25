@@ -124,7 +124,6 @@ ScrollView {
     }
 
     DropArea {
-      
       width: flow.width
       height:flow.height
       visible: !main.showAllApps
@@ -142,7 +141,7 @@ ScrollView {
         width: scrollView.width 
         columns: implicitW < parent.width ? -1 : parent.width / columnImplicitWidth
         rowSpacing: 2
-        columnSpacing: 2
+        columnSpacing: 5
         anchors.horizontalCenter: scrollView.horizontalCenter
 
         property int columnImplicitWidth: children[0].width + columnSpacing

@@ -28,7 +28,6 @@ import org.kde.kirigami as Kirigami
 
 Item {
   id: main
-  anchors.fill: parent
   property bool searching: (searchBar.text != "")
   signal  newTextQuery(string text)
 
@@ -48,9 +47,6 @@ Item {
                                       "#ff8b26"
 
   property bool showAllApps: false
-
-  property real innerPadding: 7.5
-  property real itemsWidth: width - (innerPadding * 4)
 
   KCoreAddons.KUser {
       id: kuser
@@ -111,7 +107,7 @@ Item {
     UserAvatar {
       width: plasmoid.configuration.enableGlow ? 45 : 50
       height: width
-      Layout.leftMargin: Kirigami.Units.mediumSpacing
+      //Layout.leftMargin: root.margins.left
       Layout.topMargin: Kirigami.Units.mediumSpacing
       visible: !floatingAvatar.visible
     }
@@ -132,19 +128,17 @@ Item {
       iconSize: 20 
       Layout.fillHeight: false
       Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-      Layout.rightMargin: Kirigami.Units.mediumSpacing
-      Layout.topMargin: isTop ?  Kirigami.Units.smallSpacing : Kirigami.Units.largeSpacing
     }
 
   }
 
   Rectangle {
     id: headerBarFill
-    height: headerBar.height + searchBarContainer.height + 25
-    width: root.width
+    height: headerBar.height + searchBarContainer.height + 25 + fs.innerPadding
+    width: mainItem.width
     color: Qt.rgba(main.bgColor.r, main.bgColor.g, main.bgColor.b, 0.3)
-    x: 0
-    y: 0
+    x: - fs.innerPadding
+    y: - fs.innerPadding
     visible: isTop
     z: -1
   }
@@ -161,9 +155,8 @@ Item {
   Item {
     Rectangle {
       id: searchBarContainer
-      y: isTop ? headerBar.height + 10 : main.height - (height + innerPadding * 2) 
-      width: main.width - (root.margins.left*2)
-      x: root.margins.left      
+      y: isTop ? headerBar.height + 10 : main.height - height 
+      width: main.width
       height: 45
       radius: 8
       color: Qt.lighter(Kirigami.Theme.backgroundColor, 1.5) // better contrast color 
@@ -254,13 +247,13 @@ Item {
   }
 
   // Fvorites / All apps label
+
   Image {
     id: headerLabel
     source: "icons/feather/star.svg"
     width: 15
     height: width
     y: backdrop.y + width
-    anchors.leftMargin: Kirigami.Units.largeSpacing
     anchors.topMargin:  Kirigami.Units.largeSpacing
     anchors.left: parent.left
     
@@ -348,9 +341,9 @@ Item {
         verticalCenter: headerLabel.verticalCenter
         // rightMargin: Kirigami.Units.largeSpacing 
         // leftMargin: Kirigami.Units.largeSpacing 
-        //right: parent.right
+        // right: parent.right
       }
-      x: main.width - (width + Kirigami.Units.largeSpacing + root.margins.right)
+      x: main.width - (width )
       visible: !searching
   }
   // All apps button shadow
@@ -365,7 +358,7 @@ Item {
       source: mainsecLabelGrid
       visible: plasmoid.configuration.enableGlow && !searching
   }
-      
+
   //List of Apps
   AppList {
     id: appList
@@ -373,30 +366,26 @@ Item {
     anchors.top: headerLabel.bottom
     anchors.topMargin: showAllApps ? headerLabel.width : headerLabel.width * 1.5
     
-    width: itemsWidth
+    width: main.width
     height: backdrop.height - (headerLabel.height * 3.4) 
     visible: opacity > 0
     states: [
     State {
       name: "visible"; when: (!searching)
       PropertyChanges { target: appList; opacity: 1.0 }
-      PropertyChanges { target: appList; x: innerPadding }
     },
     State {
       name: "hidden"; when: (searching)
       PropertyChanges { target: appList; opacity: 0.0}
-      PropertyChanges { target: appList; x: 5 * 1}
     }]
     transitions: [
       Transition {
         to: "visible"
         PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-        PropertyAnimation {properties: 'x'; from: 5 * 1; duration: 100; easing.type: Easing.OutQuart}
       },
       Transition {
         to: "hidden"
         PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-        PropertyAnimation {properties: 'x'; from: 25 * 1; duration: 100; easing.type: Easing.OutQuart}
       }
     ]
   }
