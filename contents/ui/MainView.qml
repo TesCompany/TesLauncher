@@ -52,17 +52,6 @@ Item {
       id: kuser
   }
 
-  P5Support.DataSource {
-      id: pmEngine
-      engine: "powermanagement"
-      connectedSources: ["PowerDevil", "Sleep States"]
-      function performOperation(what) {
-          var service = serviceForSource("PowerDevil")
-          var operation = service.operationDescription(what)
-          service.startOperationCall(operation)
-      }
-  }
-
   function updateStartpage(){
     appList.currentStateIndex = plasmoid.configuration.defaultPage
   }

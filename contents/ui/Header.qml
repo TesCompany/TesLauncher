@@ -16,19 +16,65 @@
  *   Free Software Foundation, Inc.,                                         *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .          *
  ****************************************************************************/
-import org.kde.plasma.components 3.0 as PlasmaComponents
-import org.kde.plasma.core 2.0 as PlasmaCore
-import QtQuick.Controls 2.5
-import QtQuick 2.0
-import QtQuick.Window 2.2
+import org.kde.plasma.core as PlasmaCore
+import QtQuick
 import Qt5Compat.GraphicalEffects
 import org.kde.kcmutils as KCM
+
+import org.kde.plasma.private.kicker as Kicker
+import org.kde.plasma.extras as PlasmaExtras
+import org.kde.plasma.components as PC3
+import org.kde.kitemmodels as KItemModels
+import org.kde.plasma.plasmoid
+import org.kde.kirigami as Kirigami
 
 Item {
   property var iconSize
   width: iconSize * 3.55
   height: iconSize
-  PlasmaComponents.RoundButton {
+
+  Kicker.SystemModel {
+    id: systemModel
+    favoritesModel: kicker.systemFavorites
+  }
+
+  component FilteredModel : KItemModels.KSortFilterProxyModel {
+      sourceModel: systemModel
+
+      function systemFavoritesContainsRow(sourceRow, sourceParent) {
+          const FavoriteIdRole = sourceModel.KItemModels.KRoleNames.role("favoriteId");
+          const favoriteId = sourceModel.data(sourceModel.index(sourceRow, 0, sourceParent), FavoriteIdRole);
+          return String(Plasmoid.configuration.systemFavorites).includes(favoriteId);
+      }
+
+      function trigger(index) {
+          const sourceIndex = mapToSource(this.index(index, 0));
+          systemModel.trigger(sourceIndex.row, "", null);
+      }
+
+      Component.onCompleted: {
+          Plasmoid.configuration.valueChanged.connect((key, value) => {
+              if (key === "systemFavorites") {
+                  invalidateFilter();
+              }
+          });
+      }
+  }
+
+  FilteredModel {
+    id: filteredButtonsModel
+    filterRowCallback: (sourceRow, sourceParent) =>
+        systemFavoritesContainsRow(sourceRow, sourceParent)
+  }
+
+  FilteredModel {
+      id: filteredMenuItemsModel
+      filterRowCallback: root.shouldCollapseButtons
+          ? null /*i.e. keep all rows*/
+          : (sourceRow, sourceParent) => !systemFavoritesContainsRow(sourceRow, sourceParent)
+  }
+
+  PC3.RoundButton {
     id: settingsButton
     visible: true
     flat: true
@@ -36,13 +82,10 @@ Item {
     width: height
     anchors.left: parent.left
 
-    PlasmaComponents.ToolTip {
+    PC3.ToolTip {
         text: i18n("Settings")
     }
-    Item {
-      id: visualParentSettings
-      y: 2 * iconSize
-    }
+
     Image {
       id: settingsImage
       anchors.verticalCenter: parent.verticalCenter
@@ -60,36 +103,69 @@ Item {
     onClicked: {
       KCM.KCMLauncher.openSystemSettings("kcm_landingpage")
       root.toggle()
-      //plasmoid.action("configure").trigger() //might implement later
     }
   }
-  PlasmaComponents.RoundButton {
-    id: powerOffButton
-    visible: true
-    flat: true
-    height: iconSize * 1.5
-    width: height
-    anchors.right: parent.right
 
-    PlasmaComponents.ToolTip {
-        text: i18n("Power Off")
-    }
-    Image {
-      id: powerImage
-      anchors.verticalCenter: parent.verticalCenter
-      anchors.horizontalCenter: parent.horizontalCenter
-      source: "icons/feather/power.svg"
-      width: iconSize
-      height: width
-      ColorOverlay {
-        visible: true
-        anchors.fill: powerImage
-        source: powerImage
-        color: main.textColor
+  PC3.RoundButton {
+      id: leaveButton
+      Accessible.role: Accessible.ButtonMenu
+      icon.width: Kirigami.Units.iconSizes.smallMedium
+      icon.height: Kirigami.Units.iconSizes.smallMedium
+      anchors.right: parent.right
+      flat: true
+      height: iconSize * 1.5
+      width: height
+      visible: true
+      // Make it look pressed while the menu is open
+      down: contextMenu.status === PlasmaExtras.Menu.Open || pressed
+      PC3.ToolTip.text: text
+      PC3.ToolTip.visible: hovered
+      PC3.ToolTip.delay: Kirigami.Units.toolTipDelay
+      Image {
+        id: powerImage
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        source: "icons/feather/power.svg"
+        width: iconSize
+        height: width
+        ColorOverlay {
+          visible: true
+          anchors.fill: powerImage
+          source: powerImage
+          color: main.textColor
+        }
       }
-    }
-    onClicked: {
-      pmEngine.performOperation("requestShutDown")
-    }
+
+      Keys.onLeftPressed: event => {
+          if (Qt.application.layoutDirection == Qt.LeftToRight) {
+              nextItemInFocusChain(false).forceActiveFocus(Qt.BacktabFocusReason)
+          }
+      }
+      Keys.onRightPressed: event => {
+          if (Qt.application.layoutDirection == Qt.RightToLeft) {
+              nextItemInFocusChain(false).forceActiveFocus(Qt.BacktabFocusReason)
+          }
+      }
+      onPressed: contextMenu.openRelative()
+  }
+
+  Instantiator {
+      model: filteredMenuItemsModel
+      delegate: PlasmaExtras.MenuItem {
+          required property int index
+          required property var model
+
+          text: model.display
+          icon: model.decoration
+          onClicked: filteredMenuItemsModel.trigger(index)
+      }
+      onObjectAdded: (index, object) => contextMenu.addMenuItem(object)
+      onObjectRemoved: (index, object) => contextMenu.removeMenuItem(object)
+  }
+
+  PlasmaExtras.Menu {
+      id: contextMenu
+      visualParent: leaveButton
+      placement: PlasmaExtras.Menu.BottomPosedLeftAlignedPopup
   }
 }
