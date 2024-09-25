@@ -39,12 +39,6 @@ import org.kde.draganddrop 2.0
 ScrollView {
   id: scrollView
 
-  anchors {
-  top: parent.top
-  }
-  width: parent.width
-  height: parent.height
-
   contentWidth: availableWidth //no horizontal scrolling
 
   property bool grabFocus: false

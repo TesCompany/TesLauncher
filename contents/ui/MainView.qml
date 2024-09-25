@@ -72,7 +72,7 @@ Item {
     x: 0
     y: 125 * 1
     width: main.width
-    height: isTop ? main.height - y - Kirigami.Units.largeSpacing : main.height - y - (searchBarContainer.height + 20)
+    height: isTop ? main.height - y - Kirigami.Units.largeSpacing : main.height - y //- (searchBarContainer.height + 20)
     color: bgColor
     opacity: 0
   }
@@ -93,217 +93,123 @@ Item {
   RowLayout {
     id: headerBar
     width: main.width
-    UserAvatar {
-      width: plasmoid.configuration.enableGlow ? 45 : 50
-      height: width
-      //Layout.leftMargin: root.margins.left
-      Layout.topMargin: Kirigami.Units.mediumSpacing
-      visible: !floatingAvatar.visible
-    }
-
-    Greeting {
-      id: greetingTop
-      Layout.fillHeight: false
+    Item {
       Layout.fillWidth: true
-      Layout.topMargin: -10
-      Layout.leftMargin: 10
-      Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
-      textSize: main.fontSize
-      visible: !floatingAvatar.visible
+      UserAvatar {
+        width: 80
+        height: width
+        visible: !floatingAvatar.visible
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.horizontalCenterOffset: width / 2
+      }
     }
 
     Header {
       id: powerSettings
       iconSize: 20 
       Layout.fillHeight: false
-      Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+      Layout.alignment: Qt.AlignRight | Qt.AlignTop
     }
 
-  }
-
-  Rectangle {
-    id: headerBarFill
-    height: headerBar.height + searchBarContainer.height + 25 + fs.innerPadding
-    width: mainItem.width
-    color: Qt.rgba(main.bgColor.r, main.bgColor.g, main.bgColor.b, 0.3)
-    x: - fs.innerPadding
-    y: - fs.innerPadding
-    visible: isTop
-    z: -1
   }
   
   //Greeting
   Greeting {
     id: greeting
-    visible: floatingAvatar.visible
+    visible: true//floatingAvatar.visible
     x: main.width / 2 - textWidth / 2 //This centeres the Text
-    y: 70 
-    textSize: 25 
-  }
-  //Searchbar
-  Item {
-    Rectangle {
-      id: searchBarContainer
-      y: isTop ? headerBar.height + 10 : main.height - height 
-      width: main.width
-      height: 45
-      radius: 8
-      color: Qt.lighter(Kirigami.Theme.backgroundColor, 1.5) // better contrast color 
-      Image {
-        id: searchIcon
-        x: 15
-        width: 15
-        height: width
-        anchors.verticalCenter: parent.verticalCenter
-        source: 'icons/feather/search.svg'
-        ColorOverlay {
-          visible: true
-          anchors.fill: searchIcon
-          source: searchIcon
-          color: main.textColor
-        }
-      }
-      Rectangle {
-        x: parent.x + 45
-        width: parent.width - 60
-        height: searchBar.height
-        anchors.verticalCenter: parent.verticalCenter
-        clip: true
-        color: 'transparent'
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.IBeamCursor
-            hoverEnabled: true
-        }
-        TextInput {
-          id: searchBar
-          width: parent.width
-          anchors.verticalCenter: parent.verticalCenter
-          focus: true
-          color: textColor
-          selectByMouse: true
-          selectionColor: highlightColor
-          font.family: textFont
-          font.pixelSize: 13 * 1
-          Text {
-            anchors.fill: parent
-            text: i18n("Search your computer")
-            color: Kirigami.Theme.disabledTextColor
-            visible: !parent.text
-          }
-          onTextChanged: {
-              runnerModel.query = text;
-              newTextQuery(text)
-          }
-          function clear() {
-              text = "";
-          }
-          function backspace() {
-              if (searching) {
-                  text = text.slice(0, -1);
-              }
-              focus = true;
-          }
-          function appendText(newText) {
-              if (!root.visible) {
-                  return;
-              }
-              focus = true;
-              text = text + newText;
-          }
-          Keys.onPressed: {
-            if (event.key == Qt.Key_Down) {
-              event.accepted = true;
-              runnerList.setFocus()
-            } else if (event.key == Qt.Key_Tab || event.key == Qt.Key_Up) {
-              event.accepted = true;
-              runnerList.setFocus()
-            } else if (event.key == Qt.Key_Escape) {
-              event.accepted = true;
-              if (searching) {
-                clear()
-              } else {
-                root.toggle()
-              }
-            } else if (event.key == Qt.Key_Enter || event.key == Qt.Key_Return) {
-              runnerList.setFocus()
-              runnerList.triggerFirst()
-            }
-          }
-        }
-      }
-    }
+    y: main.isTop ? 95 : 70 
+    textSize: 20 
   }
 
   // Fvorites / All apps label
+  ColumnLayout {
 
-  Image {
-    id: headerLabel
-    source: "icons/feather/star.svg"
-    width: 15
-    height: width
-    y: backdrop.y + width
-    anchors.topMargin:  Kirigami.Units.largeSpacing
+    anchors.top: backdrop.top
     anchors.left: parent.left
-    
-    PlasmaComponents.Label {
-      id: mainLabelGrid
-      x: parent.width + 10
-      anchors.verticalCenter: parent.verticalCenter
-      text: i18n(showAllApps ? "All apps" : "Favorite Apps")
-      font.family: textFont
-      font.pointSize: textSize
-    }
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
 
-    ColorOverlay {
-      visible: true
-      anchors.fill: headerLabel
-      source: headerLabel
-      color: main.textColor
-    }
-  }
-  // Show all app buttons
-  PlasmaComponents.Button  {
-      MouseArea {
-          hoverEnabled: true
-          anchors.fill: parent
-          cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
-          onClicked: showAllApps = !showAllApps
-      }
-      text: i18n(showAllApps ? "Back" : "All apps")
-      id: mainsecLabelGrid
-      icon.name: showAllApps ? "go-previous" : "go-next"
-      font.pointSize: textSize
-      font.family: textFont
-      icon.height: 15
-      icon.width: icon.height
-      LayoutMirroring.enabled: true
-      LayoutMirroring.childrenInherit: !showAllApps 
-      flat: false
-      background: Rectangle {
-        color: Qt.lighter(Kirigami.Theme.backgroundColor)
-        border.width: 1
-        border.color: Qt.darker(Kirigami.Theme.backgroundColor, 1.14)
-        radius: plasmoid.configuration.enableGlow ? height / 2 : 5
+    RowLayout {
+      id: headerLabelRow
+        
+      Image {
+        id: headerLabel
+        source: "icons/feather/star.svg"
+        
+        Layout.preferredHeight: 15
+        Layout.preferredWidth: 15
+        Layout.fillHeight: false
 
-        Rectangle {
-          id: bgMask
-          width: parent.width
-          height: parent.height
-          radius: height / 2
-          border.width: 0
-          visible: plasmoid.configuration.enableGlow && !searching
+        ColorOverlay {
+          visible: true
+          anchors.fill: headerLabel
+          source: headerLabel
+          color: main.textColor
         }
-        Item {
-          visible: plasmoid.configuration.enableGlow && !searching
-          anchors.fill: bgMask
-          // x: container.x - 20
-          layer.enabled: true
-          layer.effect: OpacityMask {
-              maskSource: bgMask
-          }
+      }
 
-          LinearGradient {
+      PlasmaComponents.Label {
+        id: mainLabelGrid
+        text: i18n(showAllApps ? "All apps" : "Favorite Apps")
+        font.family: textFont
+        font.pointSize: textSize
+        Layout.fillWidth: true
+      }
+
+      // Show all app buttons
+      PlasmaComponents.Button  {
+        id: allAppsButton
+        text: i18n(showAllApps ? "Back" : "All apps")
+        flat: false
+        
+        topPadding: 5
+        bottomPadding: topPadding
+        leftPadding: 8
+        rightPadding: 8
+
+        visible: !searching
+
+        icon.name: showAllApps ? "go-previous" : "go-next"
+        icon.height: 15
+        icon.width: icon.height
+
+        font.pointSize: textSize
+        font.family: textFont
+        
+        LayoutMirroring.enabled: true
+        LayoutMirroring.childrenInherit: !showAllApps 
+        Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+        MouseArea {
+            hoverEnabled: true
+            anchors.fill: parent
+            cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+            onClicked: showAllApps = !showAllApps
+        }
+
+        background: Rectangle {
+          id: btnBg
+          color: Qt.lighter(Kirigami.Theme.backgroundColor)
+          border.width: 1
+          border.color: Qt.darker(Kirigami.Theme.backgroundColor, 1.14)
+          radius: plasmoid.configuration.enableGlow ? height / 2 : 5
+
+          Rectangle {
+            id: bgMask
+            width: parent.width
+            height: parent.height
+            radius: height / 2
+            border.width: 1
+            visible: plasmoid.configuration.enableGlow && !searching
+          }
+          Item {
+            visible: plasmoid.configuration.enableGlow && !searching
+            anchors.fill: bgMask
+            layer.enabled: true
+            layer.effect: OpacityMask { maskSource: bgMask }
+
+            LinearGradient {
               anchors.fill: parent
               start: Qt.point(bgMask.width, 0)
               end: Qt.point(0, bgMask.height)
@@ -311,105 +217,190 @@ Item {
                   GradientStop { position: 0.0; color: glowColor1 }
                   GradientStop { position: 1.0; color: glowColor2 }
               }
+            }
           }
         }
 
+        //All apps button shadow
+        DropShadow {
+            anchors.fill: btnBg
+            cached: true
+            horizontalOffset: 0
+            verticalOffset: 0
+            radius: 11.0
+            samples: 16
+            color: glowColor1
+            source: btnBg
+            visible: plasmoid.configuration.enableGlow && !searching
+        }
       }
-      topPadding: 5
-      bottomPadding: topPadding
-      leftPadding: 8
-      rightPadding: 8
-      icon{
-          width: height
-          height: visible ? Kirigami.Units.iconSizes.small : 0
-          name: showAllApps ? "go-previous" : "go-next"
-      }
+    }
 
-      anchors {
-        topMargin: Kirigami.Units.smallSpacing
-        verticalCenter: headerLabel.verticalCenter
-        // rightMargin: Kirigami.Units.largeSpacing 
-        // leftMargin: Kirigami.Units.largeSpacing 
-        // right: parent.right
-      }
-      x: main.width - (width )
-      visible: !searching
-  }
-  // All apps button shadow
-  DropShadow {
-      anchors.fill: mainsecLabelGrid
-      cached: true
-      horizontalOffset: 0
-      verticalOffset: 0
-      radius: 11.0
-      samples: 16
-      color: glowColor1
-      source: mainsecLabelGrid
-      visible: plasmoid.configuration.enableGlow && !searching
-  }
 
-  //List of Apps
-  AppList {
-    id: appList
-    state: "visible"
-    anchors.top: headerLabel.bottom
-    anchors.topMargin: showAllApps ? headerLabel.width : headerLabel.width * 1.5
-    
-    width: main.width
-    height: backdrop.height - (headerLabel.height * 3.4) 
-    visible: opacity > 0
-    states: [
-    State {
-      name: "visible"; when: (!searching)
-      PropertyChanges { target: appList; opacity: 1.0 }
-    },
-    State {
-      name: "hidden"; when: (searching)
-      PropertyChanges { target: appList; opacity: 0.0}
-    }]
-    transitions: [
-      Transition {
-        to: "visible"
-        PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
+    //List of Apps
+    AppList {
+      id: appList
+      state: "visible"
+
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+
+      visible: opacity > 0
+      states: [
+      State {
+        name: "visible"; when: (!searching)
+        PropertyChanges { target: appList; opacity: 1.0 }
       },
-      Transition {
-        to: "hidden"
-        PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-      }
-    ]
-  }
-  RunnerList {
-    id: runnerList
-    model: runnerModel
-    state: "hidden"
-    visible: opacity > 0
-    anchors.top: headerLabel.bottom
-    anchors.topMargin: headerLabel.width 
-    width: main.width - 30 * 1
-    height: backdrop.height - (headerLabel.height * 3.5)
-    states: [
-    State {
-      name: "visible"; when: (searching)
-      PropertyChanges { target: runnerList; opacity: 1.0 }
-      PropertyChanges { target: runnerList; x: 20  * 1}
-    },
-    State {
-      name: "hidden"; when: (!searching)
-      PropertyChanges { target: runnerList; opacity: 0.0}
-      PropertyChanges { target: runnerList; x: 40 * 1}
-    }]
-    transitions: [
-      Transition {
-        to: "visible"
-        PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-        PropertyAnimation {properties: 'x'; from: 80 * 1; duration: 100; easing.type: Easing.OutQuart}
+      State {
+        name: "hidden"; when: (searching)
+        PropertyChanges { target: appList; opacity: 0.0}
+      }]
+      transitions: [
+        Transition {
+          to: "visible"
+          PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
+        },
+        Transition {
+          to: "hidden"
+          PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
+        }
+      ]
+    }
+    RunnerList {
+      id: runnerList
+      model: runnerModel
+      state: "hidden"
+      visible: opacity > 0
+
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+
+      states: [
+      State {
+        name: "visible"; when: (searching)
+        PropertyChanges { target: runnerList; opacity: 1.0 }
+        PropertyChanges { target: runnerList; x: 20  * 1}
       },
-      Transition {
-        to: "hidden"
-        PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-        PropertyAnimation {properties: 'x'; from: 20 * 1; duration: 100; easing.type: Easing.OutQuart}
+      State {
+        name: "hidden"; when: (!searching)
+        PropertyChanges { target: runnerList; opacity: 0.0}
+        PropertyChanges { target: runnerList; x: 40 * 1}
+      }]
+      transitions: [
+        Transition {
+          to: "visible"
+          PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
+          PropertyAnimation {properties: 'x'; from: 80 * 1; duration: 100; easing.type: Easing.OutQuart}
+        },
+        Transition {
+          to: "hidden"
+          PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
+          PropertyAnimation {properties: 'x'; from: 20 * 1; duration: 100; easing.type: Easing.OutQuart}
+        }
+      ]
+    }
+
+    // Search Bar
+
+    Rectangle {
+      id: searchBarContainer
+
+      Layout.fillWidth: true
+      Layout.preferredHeight: 45
+      Layout.alignment: Qt.ALignBottom | Qt.AlignHCenter
+
+      radius: 8
+      color: Qt.lighter(Kirigami.Theme.backgroundColor, 1.5) // better contrast color 
+
+      RowLayout {
+        anchors.fill: parent
+        Image {
+          id: searchIcon
+          Layout.preferredWidth: 15
+          Layout.preferredHeight: 15
+          Layout.margins: 15
+        
+          source: 'icons/feather/search.svg'
+          ColorOverlay {
+            visible: true
+            anchors.fill: searchIcon
+            source: searchIcon
+            color: main.textColor
+          }
+        }
+
+        Rectangle {
+
+          Layout.fillHeight: true
+          Layout.fillWidth: true
+          Layout.rightMargin: 15
+
+          clip: true
+          color: 'transparent'
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.IBeamCursor
+            hoverEnabled: true
+          }
+          TextInput {
+            id: searchBar
+            width: parent.width
+            anchors.verticalCenter: parent.verticalCenter
+            focus: true
+            color: textColor
+            selectByMouse: true
+            selectionColor: highlightColor
+            font.family: textFont
+            font.pixelSize: 13 * 1
+            Text {
+              anchors.fill: parent
+              text: i18n("Search your computer")
+              color: Kirigami.Theme.disabledTextColor
+              visible: !parent.text
+            }
+            onTextChanged: {
+                runnerModel.query = text;
+                newTextQuery(text)
+            }
+            function clear() {
+                text = "";
+            }
+            function backspace() {
+                if (searching) {
+                    text = text.slice(0, -1);
+                }
+                focus = true;
+            }
+            function appendText(newText) {
+                if (!root.visible) {
+                    return;
+                }
+                focus = true;
+                text = text + newText;
+            }
+            Keys.onPressed: {
+              if (event.key == Qt.Key_Down) {
+                event.accepted = true;
+                runnerList.setFocus()
+              } else if (event.key == Qt.Key_Tab || event.key == Qt.Key_Up) {
+                event.accepted = true;
+                runnerList.setFocus()
+              } else if (event.key == Qt.Key_Escape) {
+                event.accepted = true;
+                if (searching) {
+                  clear()
+                } else {
+                  root.toggle()
+                }
+              } else if (event.key == Qt.Key_Enter || event.key == Qt.Key_Return) {
+                runnerList.setFocus()
+                runnerList.triggerFirst()
+              }
+            }
+          }
+        }
       }
-    ]
+    }
   }
 
   Keys.onPressed: {

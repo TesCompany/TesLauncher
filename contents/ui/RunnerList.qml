@@ -35,13 +35,6 @@ import org.kde.kirigami as Kirigami
 ScrollView {
   id: runnerList
 
-  anchors { top: parent.top }
-
-  width: parent.width
-  height: parent.height
-
-
-
   contentWidth: - 1 //no horizontal scrolling
 
   
