@@ -90,7 +90,7 @@ PlasmoidItem {
         showRecentApps: true // Plasmoid.configuration.showRecentApps
         showRecentDocs: false //Plasmoid.configuration.showRecentDocs
        // showRecentContacts: Plasmoid.configuration.showRecentContacts
-        recentOrdering: 0 // Plasmoid.configuration.recentOrdering
+        recentOrdering: 1 // Plasmoid.configuration.recentOrdering
 
         onShowRecentAppsChanged: {
             Plasmoid.configuration.showRecentApps = showRecentApps;

@@ -34,6 +34,8 @@ Item {
 
   property int iconSize: Kirigami.Units.gridUnit * 3.2
 
+  property var triggerModel
+
   width:  112
   height: iconSize + Kirigami.Units.smallSpacing + appname.implicitHeight + 10
 
@@ -59,10 +61,10 @@ Item {
 
   onAboutToShowActionMenu: actionMenu => {
         const actionList = (model.hasActionList !== null) ? model.actionList : [];
-        Tools.fillActionMenu(i18n, actionMenu, actionList, scrollView.pinnedModel[0], model.favoriteId);
+        Tools.fillActionMenu(i18n, actionMenu, actionList, globalFavorites, model.favoriteId);
     }
   onActionTriggered: (actionId, actionArgument) => {
-      if (Tools.triggerAction(scrollView.pinnedModel[0], model.index, actionId, actionArgument) === true) {
+      if (Tools.triggerAction(triggerModel, model.index, actionId, actionArgument) === true) {
             kicker.expanded = false;
         }
   }
@@ -172,7 +174,7 @@ Item {
                 favItem.openActionMenu(favItem, mouse.x, mouse.y);
             }
           } else {
-            kicker.globalFavorites.trigger(index, "", null);
+           triggerModel.trigger(index, "", null);
             root.toggle()
           }
         

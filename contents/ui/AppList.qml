@@ -45,8 +45,8 @@ ScrollView {
   property bool showDescriptions: false
   property int iconSize: Kirigami.Units.iconSizes.medium
 
-  property var pinnedModel: [globalFavorites, rootModel.modelForRow(0), rootModel.modelForRow(1)]
   property QtObject allAppsModel
+  property QtObject recentAppsModel
 
   property var currentStateIndex: Plasmoid.configuration.defaultPage
 
@@ -78,8 +78,7 @@ ScrollView {
   property var currentSelectedCategory: scrollView.appsCategoriesList[currentStateIndex]
 
   function updateModels() {
-      item.pinnedModel = [globalFavorites, rootModel.modelForRow(0), rootModel.modelForRow(1)]
-      item.allAppsModel = rootModel.modelForRow(1)
+      scrollView.allAppsModel = rootModel.modelForRow(1)
   }
 
   function reset(){
@@ -123,6 +122,8 @@ ScrollView {
       visible: !main.showAllApps
       onDragMove: event => {
 
+          if(plasmoid.configuration.pinnedModel == 1){ return; }
+
           var above = flow.childAt(event.x, event.y);
 
           if (above && above !== kicker.dragSource && dragSource.parent == flow) {
@@ -144,10 +145,10 @@ ScrollView {
         visible: !main.showAllApps
         Repeater {
           id: repeater
-          model: globalFavorites
-          delegate:
-          FavoriteItem {
+          model:  plasmoid.configuration.pinnedModel == 0 ? globalFavorites : recentAppsModel
+          delegate: FavoriteItem {
             id: favitem
+            triggerModel: repeater.model
           }
         }
       }
@@ -349,5 +350,9 @@ ScrollView {
       width: 1
       height: 20 * 1
     }
+  }
+
+  Component.onCompleted: {
+    scrollView.recentAppsModel = rootModel.modelForRow(0);
   }
 }
