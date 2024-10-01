@@ -21,6 +21,7 @@ import QtQuick.Layouts 1.12
 import Qt5Compat.GraphicalEffects
 import QtQuick.Window 2.2
 import org.kde.plasma.components 3.0 as PlasmaComponents
+import org.kde.plasma.extras as PlasmaExtras
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.coreaddons 1.0 as KCoreAddons
@@ -88,36 +89,61 @@ Item {
     color: main.textColor
     anchors {
       top: appicon.bottom
-      topMargin: Kirigami.Units.smallSpacing
       left: parent.left
       right: parent.right
+      topMargin: Kirigami.Units.smallSpacing
+      leftMargin: Kirigami.Units.smallSpacing
+      rightMargin: Kirigami.Units.smallSpacing
     }
+    textFormat: Text.PlainText
+    elide: Text.ElideRight
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignTop
-    wrapMode: Text.WordWrap
+    maximumLineCount: 2
+    wrapMode: Text.Wrap
   }
-  
+
   Rectangle {
-    id: rect
-    z: -20
+    id: highlightItem
     visible: !plasmoid.configuration.enableGlow
     height: parent.height
     width: parent.width 
-    anchors.centerIn: parent
     radius: 8
-    
-    color: PlasmaCore.Theme.highlightColor
-    states: [
-      State {
-        name: "highlight"; when: (highlighted)
-        PropertyChanges { target: rect; opacity: 0.3}
-      },
-      State {
-        name: "default"; when: (!highlighted)
-        PropertyChanges { target: rect; opacity: 0}
-      }
-    ]
-    transitions: highlight
+    z: -20
+    color: "transparent"
+    clip: true
+    anchors.centerIn: parent
+    // apply rounded corners mask
+    layer.enabled: true
+    layer.effect: OpacityMask {
+        maskSource: Rectangle {
+            x: highlightItem.x; y: highlightItem.y
+            width: highlightItem.width
+            height: highlightItem.height
+            radius: highlightItem.radius
+        }
+    }
+
+    PlasmaExtras.Highlight {
+      id: rect
+      visible: !plasmoid.configuration.enableGlow
+      anchors.fill: parent
+      states: [
+        State {
+          name: "highlight"; when: (highlighted)
+          PropertyChanges { target: rect; active: true}
+          PropertyChanges { target: rect; hovered: true}
+          PropertyChanges { target: rect; opacity: 1}
+        },
+        State {
+          name: "default"; when: (!highlighted)
+          PropertyChanges { target: rect; active: false}
+          PropertyChanges { target: rect; hovered: false}
+          PropertyChanges { target: rect; opacity: 0}
+        }
+      ]
+      transitions: highlight
+    }
   }
 
   DropShadow {
