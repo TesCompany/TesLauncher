@@ -17,10 +17,6 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .          *
  ****************************************************************************/
 
-
-// Agregar condicion para que los categproes repeater solo se muestren cuando el index sea diferente a 0 para
-//evitar que aparesca el listado de a b c de .. abajo de todas las aplicaciones
-
 import Qt5Compat.GraphicalEffects
 
 import QtQuick 2.12
@@ -75,18 +71,64 @@ ScrollView {
     return categories;
   }
 
-  property var currentSelectedCategory: scrollView.appsCategoriesList[currentStateIndex]
-
   function updateModels() {
       scrollView.allAppsModel = rootModel.modelForRow(1)
+  }
+
+  function updateShowedModel(index){
+
+    /* index 1 means that all applications must be shown
+      and we need a master repeater that iterates through
+      every app category */
+
+    if(index == 1) {
+
+      /* We need a child repeater for each app category
+       so we set the master repeater model to the allApps model */
+
+      masterAllAppsRepeater.model = rootModel.modelForRow(index);
+
+      // Set each child repeater's(category repeater) model to the corresponding category model so all apps are shown
+      for (var i = 0; i < masterAllAppsRepeater.count; i++ ){
+        masterAllAppsRepeater.itemAt(i).model = masterAllAppsRepeater.model.modelForRow(i);
+      }
+    } else {
+
+      /*  If index is != 0 means that a specific category must be shown,
+          so we just need one child repeater */
+
+      masterAllAppsRepeater.model = 1;
+
+      // Sets the unique child repeater's model to the corresponding category
+      masterAllAppsRepeater.itemAt(0).model = rootModel.modelForRow(index);
+    }
+  }
+
+  function incrementCurrentStateIndex() {
+    currentStateIndex +=1;
+    if (currentStateIndex > appsCategoriesList.length - 1) {
+        currentStateIndex = 0;
+    }
+  }
+
+  function decrementCurrentStateIndex() {
+    currentStateIndex -=1;
+    if (currentStateIndex < 0) {
+      currentStateIndex = appsCategoriesList.length - 1;
+    }
+  }
+
+  function resetCurrentStateIndex() {
+    currentStateIndex = plasmoid.configuration.defaultPage;
+  }
+
+  function getCurrentCategory(){
+    return appsCategoriesList[currentStateIndex];
   }
 
   function reset(){
     ScrollBar.vertical.position = 0
     currentStateIndex = plasmoid.configuration.defaultPage
-    currentSelectedCategory = appsCategoriesList[currentStateIndex]
-    sortingLabel.text = currentSelectedCategory.name
-    sortingImage.source = currentSelectedCategory.icon
   }
   function get_position(){
     return ScrollBar.vertical.position;
@@ -98,9 +140,6 @@ ScrollView {
       target: root
       function onVisibleChanged() {
         currentStateIndex = plasmoid.configuration.defaultPage
-        currentSelectedCategory = appsCategoriesList[currentStateIndex]
-        sortingLabel.text = currentSelectedCategory.name
-        sortingImage.source = currentSelectedCategory.icon
       }
   }
   onContentHeightChanged: {
@@ -153,198 +192,22 @@ ScrollView {
         }
       }
     }
-
-    Kirigami.Icon {
-      id: sortingImage
-      width: 15 * 1
-      height: width
+    Grid { //Categories
+      id: appCategories
+      columns: 1
+      width: scrollView.width - 10 * 1
       visible: main.showAllApps
-      source: scrollView.currentSelectedCategory.icon
-
-      PlasmaComponents.Label {
-        id: sortingLabel
-        x: parent.width + 10 * 1
-        anchors.verticalCenter: parent.verticalCenter
-        text: i18n(scrollView.currentSelectedCategory.name)
-        color: main.textColor
-        font.family: main.textFont
-        font.pointSize: main.textSize
-      }
-      MouseArea {
-        id: mouseArea
-        width: parent.width + sortingLabel.width + 5
-        height: parent.height
-        cursorShape: Qt.PointingHandCursor
-        hoverEnabled: true
-        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-        onClicked: {
-          if (mouse.button == Qt.LeftButton) {
-            isRight = false
-            currentStateIndex += 1
-          } else if (mouse.button == Qt.RightButton) {
-            isRight = true
-            currentStateIndex -= 1
-          } else if (mouse.button == Qt.MiddleButton) {
-            isRight = false
-            currentStateIndex = plasmoid.configuration.defaultPage
-          }
-          if (currentStateIndex > scrollView.appsCategoriesList.length - 1) {
-            currentStateIndex = 0
-          } else if (currentStateIndex < 0) {
-            currentStateIndex = scrollView.appsCategoriesList.length - 1
-          }
-
-          var currentCategory = scrollView.appsCategoriesList[currentStateIndex];
-          var choosenRepeater = (currentStateIndex % 2 == 0) ? categoriesRepeater : categoriesRepeater2;
-
-          sortingLabel.text = currentCategory.name;
-          sortingImage.source = currentCategory.icon;
-          choosenRepeater.model = rootModel.modelForRow(currentCategory.index);
-        }
-      }
-    }
-    Item { //Spacer
-      id: spacer
-      width: 1
-      height: 10 * 1
-    }
-
-      Grid {
-        id: allAppsGrid
-        x: - 10 * 1
-        columns: 1
-        width: scrollView.width - 10 * 1
-        visible: opacity > 0 && main.showAllApps
-        Repeater {
-          id: allAppsRepeater
-          model: allAppsModel
-          Repeater {
-            id: repeater2
-            model: allAppsRepeater.model.modelForRow(index)
-           delegate:
-          GenericItem {
-              id: genericItem
-              triggerModel: repeater2.model
-            }
-          }
-        }
-        states: [
-        State {
-          name: "hidden"; when: (currentStateIndex != 0)
-          PropertyChanges { target: allAppsGrid; opacity: 0.0 }
-          PropertyChanges { target: allAppsGrid; x: (!isRight ? -20 * 1 : 0) }
-        },
-        State {
-          name: "shown"; when: (currentStateIndex == 0)
-          PropertyChanges { target: allAppsGrid; opacity: 1.0 }
-          PropertyChanges { target: allAppsGrid; x: -10 }
-        }]
-        transitions: [
-          Transition {
-            to: "hidden"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: -10 * 1; duration: 80;easing.type: Easing.InQuart}
-          },
-          Transition {
-            to: "shown"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * 1 : 0); duration: 80; easing.type: Easing.InQuart}
-          }
-        ]
-        onStateChanged: {
-          if (state == 'hidden') {
-            scrollpositon = scrollView.ScrollBar.vertical.position
-            scrollheight = scrollView.contentHeight
-          }
-        }
-      }
-      Grid { //Categories
-        id: appCategories
-        columns: 1
-        width: scrollView.width - 10 * 1
-        visible: opacity > 0 && main.showAllApps
-        Repeater {
-          id: categoriesRepeater
-          delegate:
-          GenericItem {
+      Repeater {
+        id: masterAllAppsRepeater
+        delegate: Repeater {
+          id: categoryRepeater
+          delegate: GenericItem {
             id: genericItemCat
-            triggerModel: categoriesRepeater.model
-          }
-        }
-        states: [
-        State {
-          name: "hidden"; when: (currentStateIndex == 0 || currentStateIndex % 2 === 1)
-          PropertyChanges { target: appCategories; opacity: 0.0 }
-          PropertyChanges { target: appCategories; x: (isRight ? -20 * 1 : 0) }
-        },
-        State {
-          name: "shown"; when: (currentStateIndex != 0 && currentStateIndex % 2 === 0)
-          PropertyChanges { target: appCategories; opacity: 1.0 }
-          PropertyChanges { target: appCategories; x: -10 * 1 }
-        }]
-        transitions: [
-          Transition {
-            to: "hidden"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: -10 * 1; duration: 80; easing.type: Easing.InQuart}
-          },
-          Transition {
-            to: "shown"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * 1 : 0); duration: 80; easing.type: Easing.InQuart}
-          }
-        ]
-        onStateChanged: {
-          if (state == 'hidden') {
-            scrollpositon = scrollView.ScrollBar.vertical.position
-            scrollheight = scrollView.contentHeight
+            triggerModel: categoryRepeater.model
           }
         }
       }
-
-      Grid { //Categories
-        id: appCategories2
-        columns: 1
-        width: scrollView.width - 10 * 1
-        visible: opacity > 0 && main.showAllApps
-        Repeater {
-          id: categoriesRepeater2
-          delegate:
-          GenericItem {
-            id: genericItemCat2
-            triggerModel: categoriesRepeater2.model
-          }
-        }
-        states: [
-        State {
-          name: "hidden"; when: (currentStateIndex == 0 || currentStateIndex % 2 === 0)
-          PropertyChanges { target: appCategories2; opacity: 0.0 }
-          PropertyChanges { target: appCategories2; x: (isRight ? -20 * 1 : 0) }
-        },
-        State {
-          name: "shown"; when: (currentStateIndex != 0 && currentStateIndex % 2 === 1)
-          PropertyChanges { target: appCategories2; opacity: 1.0 }
-          PropertyChanges { target: appCategories2; x: -10  * 1}
-        }]
-        transitions: [
-          Transition {
-            to: "hidden"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: -10 * 1; duration: 80; easing.type: Easing.InQuart}
-          },
-          Transition {
-            to: "shown"
-            PropertyAnimation { properties: 'opacity'; duration: 80; easing.type: Easing.InQuart}
-            PropertyAnimation { properties: 'x'; from: (isRight ? -20 * 1 : 0);duration: 80; easing.type: Easing.InQuart}
-          }
-        ]
-        onStateChanged: {
-          if (state == 'hidden') {
-            scrollpositon = scrollView.ScrollBar.vertical.position
-            scrollheight = scrollView.contentHeight
-          }
-        }
-      }
+    }
 
     Item { //Spacer
       width: 1

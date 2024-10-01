@@ -65,6 +65,7 @@ Item {
     searchBar.clear()
     searchBar.focus = true
     appList.reset()
+    headerLabelRow.reset()
   }
 
   Rectangle {
@@ -129,32 +130,65 @@ Item {
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.bottom: parent.bottom
+    spacing: 2
 
     RowLayout {
       id: headerLabelRow
+
+      function reset() {
+        if(showAllApps) {
+          var currentCategory = appList.getCurrentCategory();
+          mainLabelGrid.text = currentCategory.name;
+          sortingImage.source = currentCategory.icon;
+          appList.updateShowedModel(currentCategory.index);
+        } else {
+          mainLabelGrid.text = "Favorite Apps";
+        }
+      }
         
       Image {
         id: headerLabel
         source: "icons/feather/star.svg"
+        visible: !main.showAllApps
         
         Layout.preferredHeight: 15
         Layout.preferredWidth: 15
         Layout.fillHeight: false
 
         ColorOverlay {
-          visible: true
+          visible: headerLabel.visible
           anchors.fill: headerLabel
           source: headerLabel
           color: main.textColor
         }
       }
 
+      Kirigami.Icon {
+        id: sortingImage
+        Layout.preferredHeight: 15
+        Layout.preferredWidth: 15
+        Layout.fillHeight: false
+        visible: main.showAllApps
+      }
+
       PlasmaComponents.Label {
         id: mainLabelGrid
-        text: i18n(showAllApps ? "All apps" : "Favorite Apps")
         font.family: textFont
         font.pointSize: textSize
         Layout.fillWidth: true
+        MouseArea {
+          anchors.fill: parent
+          cursorShape: Qt.PointingHandCursor
+          hoverEnabled: true
+          enabled: showAllApps && !searching
+          acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+          onClicked: {
+            if (mouse.button == Qt.LeftButton) { appList.incrementCurrentStateIndex() }
+            else if (mouse.button == Qt.RightButton) { appList.decrementCurrentStateIndex() }
+            else if (mouse.button == Qt.MiddleButton) { appList.resetCurrentStateIndex() }
+            headerLabelRow.reset();
+          }
+        }
       }
 
       // Show all app buttons
@@ -185,7 +219,10 @@ Item {
             hoverEnabled: true
             anchors.fill: parent
             cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: showAllApps = !showAllApps
+            onClicked: {
+              showAllApps = !showAllApps;
+              headerLabelRow.reset();
+            }
         }
 
         background: Rectangle {
