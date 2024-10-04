@@ -27,13 +27,6 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 
 ScrollView {
   id: scrollView
-
-  anchors {
-  top: parent.top
-  }
-  width: parent.width
-  height: parent.height
-
   contentWidth: - 1 //no horizontal scrolling
 
   property bool grabFocus: false
@@ -102,13 +95,14 @@ ScrollView {
   onContentHeightChanged: {
     ScrollBar.vertical.position = scrollpositon * scrollheight / scrollView.contentHeight
   }
+
   Column {
     id: column
     width: parent.width
     onPositioningComplete: {
       scrollView.contentHeight = height
-      if (height < backdrop.height) {
-        scrollView.contentHeight = backdrop.height + 1
+      if (height < appList.height) {
+        scrollView.contentHeight = appList.height
       }
     }
 

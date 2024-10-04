@@ -136,14 +136,22 @@ PlasmaCore.Dialog {
         Layout.maximumWidth: Layout.minimumWidth
         Layout.maximumHeight: Layout.minimumHeight
 
+         // We want the MainView to have an uniform margin through different plasma themes
+        property real innerPadding: 15
+
         Item {
-          x: - root.margins.left
-          y: - root.margins.top
-          width: parent.width + root.margins.left + root.margins.right
-          height: parent.height + root.margins.top + root.margins.bottom
+          id: mainItem
+          x: - dialogSvg.margins.left
+          y: - dialogSvg.margins.top
+          width: parent.width + dialogSvg.margins.left + dialogSvg.margins.right
+          height: parent.height + dialogSvg.margins.top + dialogSvg.margins.bottom
 
           MainView {
             id: main
+            width:  mainItem.width - (fs.innerPadding*2)
+            height: mainItem.height - (fs.innerPadding*2)
+            x: fs.innerPadding
+            y: fs.innerPadding
           }
         }
 

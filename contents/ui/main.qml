@@ -194,6 +194,12 @@ Item {
         imagePath: "widgets/panel-background"
     }
 
+    PlasmaCore.FrameSvgItem{
+        id: dialogSvg
+        visible: false
+        imagePath: "dialogs/background"
+    }
+
     PlasmaComponents.Label {
         id: toolTipDelegate
 
