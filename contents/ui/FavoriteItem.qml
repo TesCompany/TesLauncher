@@ -34,7 +34,7 @@ Item {
 
   property int iconSize: units.gridUnit * 3.2
 
-  width:  Math.max(iconSize + units.largeSpacing * 2, appname.contentWidth) + 10
+  width: 112
   height: iconSize + units.smallSpacing + appname.implicitHeight + 10
 
   signal itemActivated(int index, string actionId, string argument)
@@ -44,6 +44,8 @@ Item {
 
   property bool hasActionList: ((model.favoriteId !== null)
       || (("hasActionList" in model) && (model.hasActionList === true)))
+
+  property int itemIndex: model.index
 
 
   function openActionMenu(x, y) {
@@ -191,6 +193,7 @@ Item {
             dragHelper.startDrag(kicker, model.url, model.decoration,
                 "text/x-plasmoidservicename", model.pluginName);
           } else {
+            kicker.dragSource = favItem;
             dragHelper.startDrag(kicker, model.url, model.decoration);
           }
         }

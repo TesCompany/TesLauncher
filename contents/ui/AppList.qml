@@ -19,11 +19,14 @@
 
 import QtGraphicalEffects 1.0
 
-import QtQuick 2.12
+import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.0
 
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents
+import org.kde.draganddrop 2.0
+
 
 ScrollView {
   id: scrollView
@@ -106,21 +109,40 @@ ScrollView {
       }
     }
 
-    Flow { //Favorites
-      id: flow
-      width: scrollView.width - 10 * PlasmaCore.Units.devicePixelRatio
-      spacing: 12
-      leftPadding: 20
+    DropArea {
+      width: flow.width
+      height:flow.height
       visible: !main.showAllApps
-      Repeater {
-        model: pinnedModel[0]
-        delegate:
-        FavoriteItem {
-          id: favitem
+      onDragMove: event => {
+
+        var above = flow.childAt(event.x, event.y);
+
+        if (above && above !== kicker.dragSource && dragSource.parent == flow) {
+          globalFavorites.moveRow(dragSource.itemIndex, above.itemIndex);
+        }
+      }
+      GridLayout { //Favorites
+        id: flow
+        width: scrollView.width 
+        columns: implicitW < parent.width ? -1 : parent.width / columnImplicitWidth
+        rowSpacing: 2
+        columnSpacing: 2
+        anchors.horizontalCenter: scrollView.horizontalCenter
+
+        property int columnImplicitWidth: children[0].width + columnSpacing
+        property int implicitW: repeater.count * columnImplicitWidth
+
+        visible: !main.showAllApps
+        Repeater {
+          id: repeater
+          model: pinnedModel[0]
+          delegate:
+          FavoriteItem {
+            id: favitem
+          }
         }
       }
     }
-
 
     PlasmaCore.IconItem {
       id: sortingImage

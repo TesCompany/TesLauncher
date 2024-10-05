@@ -95,48 +95,22 @@ Item {
             plasmoid.configuration.recentOrdering = recentOrdering;
         }
 
-        onFavoritesModelChanged: {
-            if ("initForClient" in favoritesModel) {
-                favoritesModel.initForClient("org.kde.plasma.kicker.favorites.instance-" + plasmoid.id)
-
-                if (!plasmoid.configuration.favoritesPortedToKAstats) {
-                    favoritesModel.portOldFavorites(plasmoid.configuration.favoriteApps);
-                    plasmoid.configuration.favoritesPortedToKAstats = true;
-                }
-            } else {
-                favoritesModel.favorites = plasmoid.configuration.favoriteApps;
-            }
-
-            favoritesModel.maxFavorites = pageSize;
-        }
-
-        onSystemFavoritesModelChanged: {
-            systemFavoritesModel.enabled = false;
-            systemFavoritesModel.favorites = plasmoid.configuration.favoriteSystemActions;
-            systemFavoritesModel.maxFavorites = 6;
-        }
-
         Component.onCompleted: {
-            if ("initForClient" in favoritesModel) {
-                favoritesModel.initForClient("org.kde.plasma.kicker.favorites.instance-" + plasmoid.id)
+            favoritesModel.initForClient("org.kde.plasma.kicker.favorites.instance-" + plasmoid.id)
 
-                if (!plasmoid.configuration.favoritesPortedToKAstats) {
+            if (!plasmoid.configuration.favoritesPortedToKAstats) {
+                if (favoritesModel.count < 1) {
                     favoritesModel.portOldFavorites(plasmoid.configuration.favoriteApps);
-                    plasmoid.configuration.favoritesPortedToKAstats = true;
                 }
-            } else {
-                favoritesModel.favorites = plasmoid.configuration.favoriteApps;
+                plasmoid.configuration.favoritesPortedToKAstats = true;
             }
-
-            favoritesModel.maxFavorites = pageSize;
-            rootModel.refresh();
         }
     }
 
     Connections {
         target: globalFavorites
 
-        onFavoritesChanged: {
+        function onFavoritesChanged() {
             plasmoid.configuration.favoriteApps = target.favorites;
         }
     }
@@ -144,7 +118,7 @@ Item {
     Connections {
         target: systemFavorites
 
-        onFavoritesChanged: {
+        function onFavoritesChanged() {
             plasmoid.configuration.favoriteSystemActions = target.favorites;
         }
     }
@@ -152,11 +126,11 @@ Item {
     Connections {
         target: plasmoid.configuration
 
-        onFavoriteAppsChanged: {
+        function onFavoriteAppsChanged() {
             globalFavorites.favorites = plasmoid.configuration.favoriteApps;
         }
 
-        onFavoriteSystemActionsChanged: {
+        function onFavoriteSystemActionsChanged() {
             systemFavorites.favorites = plasmoid.configuration.favoriteSystemActions;
         }
     }
@@ -173,6 +147,8 @@ Item {
 
     Kicker.DragHelper {
         id: dragHelper
+
+        dragIconSize: PlasmaCore.Units.iconSizes.medium
     }
 
     Kicker.ProcessRunner {

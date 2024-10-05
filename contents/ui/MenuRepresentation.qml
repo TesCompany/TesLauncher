@@ -169,6 +169,7 @@ PlasmaCore.Dialog {
     Component.onCompleted: {
         rootModel.refreshed.connect(refreshModel)
         kicker.reset.connect(reset);
+        rootModel.refresh();
         reset();
     }
 }
