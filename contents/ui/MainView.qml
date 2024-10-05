@@ -76,6 +76,7 @@ Item {
     searchBar.clear()
     searchBar.focus = true
     appList.reset()
+    headerLabelRow.reset()
   }
 
   Rectangle {
@@ -144,29 +145,62 @@ Item {
 
     RowLayout {
       id: headerLabelRow
+      visible: !searching
+        
+      function reset() {
+        if(showAllApps) {
+          var currentCategory = appList.getCurrentCategory();
+          mainLabelGrid.text = currentCategory.name;
+          sortingImage.source = currentCategory.icon;
+          appList.updateShowedModel(currentCategory.index);
+        } else {
+          mainLabelGrid.text = "Favorite Apps";
+        }
+      }
         
       Image {
         id: headerLabel
         source: "icons/feather/star.svg"
+        visible: !main.showAllApps
         
         Layout.preferredHeight: 15
         Layout.preferredWidth: 15
         Layout.fillHeight: false
 
         ColorOverlay {
-          visible: true
+          visible: headerLabel.visible
           anchors.fill: headerLabel
           source: headerLabel
           color: main.textColor
         }
       }
 
+      Kirigami.Icon {
+        id: sortingImage
+        Layout.preferredHeight: 15
+        Layout.preferredWidth: 15
+        Layout.fillHeight: false
+        visible: main.showAllApps
+      }
+
       PlasmaComponents.Label {
         id: mainLabelGrid
-        text: i18n(showAllApps ? "All apps" : "Favorite Apps")
         font.family: textFont
         font.pointSize: textSize
         Layout.fillWidth: true
+        MouseArea {
+          anchors.fill: parent
+          cursorShape: Qt.PointingHandCursor
+          hoverEnabled: true
+          enabled: showAllApps
+          acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+          onClicked: {
+            if (mouse.button == Qt.LeftButton) { appList.incrementCurrentStateIndex() }
+            else if (mouse.button == Qt.RightButton) { appList.decrementCurrentStateIndex() }
+            else if (mouse.button == Qt.MiddleButton) { appList.resetCurrentStateIndex() }
+            headerLabelRow.reset();
+          }
+        }
       }
 
       // Show all app buttons
@@ -179,8 +213,6 @@ Item {
         bottomPadding: topPadding
         leftPadding: 8
         rightPadding: 8
-
-        visible: !searching
 
         icon.name: showAllApps ? "go-previous" : "go-next"
         icon.height: 15
@@ -197,7 +229,10 @@ Item {
             hoverEnabled: true
             anchors.fill: parent
             cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: showAllApps = !showAllApps
+            onClicked: {
+              showAllApps = !showAllApps;
+              headerLabelRow.reset();
+            }
         }
 
         background: Rectangle {
@@ -213,10 +248,10 @@ Item {
             height: parent.height
             radius: height / 2
             border.width: 1
-            visible: plasmoid.configuration.enableGlow && !searching
+            visible: plasmoid.configuration.enableGlow
           }
           Item {
-            visible: plasmoid.configuration.enableGlow && !searching
+            visible: plasmoid.configuration.enableGlow
             anchors.fill: bgMask
             layer.enabled: true
             layer.effect: OpacityMask { maskSource: bgMask }
@@ -243,7 +278,7 @@ Item {
             samples: 16
             color: glowColor1
             source: btnBg
-            visible: plasmoid.configuration.enableGlow && !searching
+            visible: plasmoid.configuration.enableGlow
         }
       }
     }
@@ -367,7 +402,7 @@ Item {
             Text {
               anchors.fill: parent
               text: i18n("Search your computer")
-              color: Kirigami.Theme.disabledTextColor
+              color: PlasmaCore.Theme.disabledTextColor
               visible: !parent.text
             }
             onTextChanged: {
