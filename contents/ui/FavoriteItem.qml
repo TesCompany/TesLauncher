@@ -47,6 +47,8 @@ Item {
 
   property int itemIndex: model.index
 
+  property var triggerModel
+
 
   function openActionMenu(x, y) {
       var actionList = hasActionList ? model.actionList : [];
@@ -57,7 +59,7 @@ Item {
   }
 
   function actionTriggered(actionId, actionArgument) {
-      var close = (Tools.triggerAction(kicker.globalFavorites, index, actionId, actionArgument) === true);
+      var close = (Tools.triggerAction(triggerModel, index, actionId, actionArgument) === true);
       if (close) {
           root.toggle();
       }
@@ -167,7 +169,7 @@ Item {
                 openActionMenu(mapped.x, mapped.y);
             }
           } else {
-            kicker.globalFavorites.trigger(index, "", null);
+            triggerModel.trigger(index, "", null);
             root.toggle()
           }
         }

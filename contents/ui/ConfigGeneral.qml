@@ -46,6 +46,7 @@ Kirigami.FormLayout {
     property color cfg_indicatorColor: plasmoid.configuration.indicatorColor
     property bool cfg_enableGreeting: plasmoid.configuration.indicatorColor
     property alias cfg_defaultPage: defaultPage.currentIndex
+    property alias cfg_pinnedModel: pinnedModel.currentIndex
     property alias cfg_useExtraRunners: useExtraRunners.checked
     property alias cfg_customGreeting: customGreeting.text
     property alias cfg_floating: floating.checked
@@ -281,6 +282,14 @@ Kirigami.FormLayout {
     }
     Item {
         Kirigami.FormData.isSection: true
+    }
+    ComboBox {
+      id: pinnedModel
+      Kirigami.FormData.label: i18n("Pinned applications Page:")
+      model: [
+        i18n("Favorites (Default)"),
+        i18n("Recent Applications")
+      ]
     }
     ComboBox {
         id: defaultPage

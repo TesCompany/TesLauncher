@@ -158,6 +158,8 @@ ScrollView {
       visible: !main.showAllApps
       onDragMove: event => {
 
+        if(plasmoid.configuration.pinnedModel == 1){ return; }
+
         var above = flow.childAt(event.x, event.y);
 
         if (above && above !== kicker.dragSource && dragSource.parent == flow) {
@@ -178,10 +180,10 @@ ScrollView {
         visible: !main.showAllApps
         Repeater {
           id: repeater
-          model: pinnedModel[0]
-          delegate:
-          FavoriteItem {
+          model:  plasmoid.configuration.pinnedModel === 0 ? pinnedModel[0] :  pinnedModel[1]
+          delegate: FavoriteItem {
             id: favitem
+            triggerModel: repeater.model
           }
         }
       }
