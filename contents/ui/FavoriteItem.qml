@@ -23,6 +23,7 @@ import QtQuick.Window 2.2
 import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.core 2.0 as PlasmaCore
+import org.kde.plasma.extras 2.0 as PlasmaExtras
 import org.kde.kcoreaddons 1.0 as KCoreAddons
 import org.kde.kirigami 2.13 as Kirigami
 import QtQuick.Controls 2.15
@@ -93,26 +94,48 @@ Item {
   }
   
   Rectangle {
-    id: rect
-    z: -20
+    id: highlightItem
     visible: !plasmoid.configuration.enableGlow
     height: parent.height
     width: parent.width 
-    anchors.centerIn: parent
     radius: 8
-    
-    color: PlasmaCore.Theme.highlightColor
-    states: [
-      State {
-        name: "highlight"; when: (highlighted)
-        PropertyChanges { target: rect; opacity: 0.3}
-      },
-      State {
-        name: "default"; when: (!highlighted)
-        PropertyChanges { target: rect; opacity: 0}
-      }
-    ]
-    transitions: highlight
+    z: -20
+    color: "transparent"
+    clip: true
+    anchors.centerIn: parent
+    // apply rounded corners mask
+    layer.enabled: true
+    layer.effect: OpacityMask {
+        maskSource: Rectangle {
+            x: highlightItem.x; y: highlightItem.y
+            width: highlightItem.width
+            height: highlightItem.height
+            radius: highlightItem.radius
+        }
+    }
+
+    PlasmaExtras.Highlight {
+      id: rect
+      visible: !plasmoid.configuration.enableGlow
+      width: highlightItem.width + 15
+      height: highlightItem.height + 15
+      
+      anchors.centerIn: parent
+      
+      states: [
+        State {
+          name: "highlight"; when: (highlighted)
+          PropertyChanges { target: rect; hovered: true}
+          PropertyChanges { target: rect; opacity: 1}
+        },
+        State {
+          name: "default"; when: (!highlighted)
+          PropertyChanges { target: rect; hovered: false}
+          PropertyChanges { target: rect; opacity: 0}
+        }
+      ]
+      transitions: highlight
+    }
   }
 
   DropShadow {
