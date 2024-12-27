@@ -81,7 +81,6 @@ PlasmaExtras.ScrollArea {
   }
 
   Column {
-    x: -10 * PlasmaCore.Units.devicePixelRatio
     Repeater {
       id: repeater
       delegate:
@@ -97,7 +96,6 @@ PlasmaExtras.ScrollArea {
           height: image.height
           Image {
             id: image
-            x: 20 * PlasmaCore.Units.devicePixelRatio
             source: repeater.model.modelForRow(index).description === 'Command Line' ? "icons/feather/code.svg" : repeater.model.modelForRow(index).description == 'Desktop Search' ? "icons/feather/search.svg" : "icons/feather/file-text.svg"
             width: 15 * PlasmaCore.Units.devicePixelRatio
             height: width
@@ -108,7 +106,7 @@ PlasmaExtras.ScrollArea {
               text: repeater.model.modelForRow(index).description
               color: main.textColor
               font.family: main.textFont
-              font.pixelSize: 12 * PlasmaCore.Units.devicePixelRatio
+              font.pointSize: main.textSize
             }
             ColorOverlay {
               visible: true
@@ -125,7 +123,7 @@ PlasmaExtras.ScrollArea {
           anchors.top: headerLabel.bottom
           subIndex: index
           triggerModel: repeater.model.modelForRow(index)
-
+          
           onFocusChanged: {
             if (focus) {
               runnerList.focus = true;
