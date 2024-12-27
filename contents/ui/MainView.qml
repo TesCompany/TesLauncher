@@ -134,7 +134,8 @@ Item {
 
     RowLayout {
       id: headerLabelRow
-
+      visible: !searching
+      
       function reset() {
         if(showAllApps) {
           var currentCategory = appList.getCurrentCategory();
@@ -316,23 +317,19 @@ Item {
       State {
         name: "visible"; when: (searching)
         PropertyChanges { target: runnerList; opacity: 1.0 }
-        PropertyChanges { target: runnerList; x: 20  * 1}
       },
       State {
         name: "hidden"; when: (!searching)
         PropertyChanges { target: runnerList; opacity: 0.0}
-        PropertyChanges { target: runnerList; x: 40 * 1}
       }]
       transitions: [
         Transition {
           to: "visible"
           PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-          PropertyAnimation {properties: 'x'; from: 80 * 1; duration: 100; easing.type: Easing.OutQuart}
         },
         Transition {
           to: "hidden"
           PropertyAnimation {properties: 'opacity'; duration: 100; easing.type: Easing.OutQuart}
-          PropertyAnimation {properties: 'x'; from: 20 * 1; duration: 100; easing.type: Easing.OutQuart}
         }
       ]
     }

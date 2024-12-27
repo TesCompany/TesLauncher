@@ -87,7 +87,6 @@ ScrollView {
 
 
   Column {
-    x: -10 * 1
     Repeater {
       id: repeater
       delegate:
@@ -103,7 +102,6 @@ ScrollView {
           height: image.height
           Image {
             id: image
-            x: 20 * 1
             source: repeater.model.modelForRow(index).description === 'Command Line' ? "icons/feather/code.svg" : repeater.model.modelForRow(index).description == 'File Search' ? "icons/feather/search.svg" : "icons/feather/file-text.svg"
             width: 15 * 1
             height: width
@@ -114,7 +112,7 @@ ScrollView {
               text: repeater.model.modelForRow(index).name
               color: main.textColor
               font.family: main.textFont
-              font.pointSize: main.textSize + 2
+              font.pointSize: main.textSize
             }
             ColorOverlay {
               visible: true
@@ -131,7 +129,6 @@ ScrollView {
           anchors.top: headerLabel.bottom
           subIndex: index
           triggerModel: repeater.model.modelForRow(index)
-          x: 20
           
           onFocusChanged: {
             if (focus) {
