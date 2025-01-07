@@ -25,6 +25,8 @@ import org.kde.kcoreaddons 1.0 as KCoreAddons
 import org.kde.kirigami 2.13 as Kirigami
 
 
+import "js/colorType.js" as ColorType
+
 Item {
   id: main
  // anchors.fill: parent
@@ -47,6 +49,9 @@ Item {
                                       "#ff8b26"
 
   property bool showAllApps: false
+
+  property bool isDarkTheme: ColorType.isDark(bgColor)
+  property color contrastBgColor: isDarkTheme ? Qt.rgba(255, 255, 255, 0.15) : Qt.rgba(255, 255, 255, 0.45)
 
   KCoreAddons.KUser {
       id: kuser
@@ -146,7 +151,6 @@ Item {
     RowLayout {
       id: headerLabelRow
       visible: !searching
-        
       function reset() {
         if(showAllApps) {
           var currentCategory = appList.getCurrentCategory();
@@ -237,9 +241,9 @@ Item {
 
         background: Rectangle {
           id: btnBg
-          color: Qt.lighter(PlasmaCore.Theme.backgroundColor)
+          color: main.contrastBgColor
           border.width: 1
-          border.color: Qt.darker(PlasmaCore.Theme.backgroundColor, 1.14)
+          border.color: main.contrastBgColor
           radius: plasmoid.configuration.enableGlow ? height / 2 : 5
 
           Rectangle {
@@ -353,7 +357,7 @@ Item {
       Layout.alignment: Qt.ALignBottom | Qt.AlignHCenter
 
       radius: 8
-      color: Qt.lighter(PlasmaCore.Theme.backgroundColor, 1.5) // better contrast color 
+      color: main.contrastBgColor // better contrast color 
 
       RowLayout {
         anchors.fill: parent
