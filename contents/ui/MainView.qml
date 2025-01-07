@@ -26,6 +26,8 @@ import org.kde.coreaddons 1.0 as KCoreAddons
 import org.kde.plasma.plasma5support 2.0 as P5Support
 import org.kde.kirigami as Kirigami
 
+import "js/colorType.js" as ColorType
+
 Item {
   id: main
   property bool searching: (searchBar.text != "")
@@ -47,6 +49,9 @@ Item {
                                       "#ff8b26"
 
   property bool showAllApps: false
+
+  property bool isDarkTheme: ColorType.isDark(bgColor)
+  property color contrastBgColor: isDarkTheme ? Qt.rgba(255, 255, 255, 0.15) : Qt.rgba(255, 255, 255, 0.45)
 
   KCoreAddons.KUser {
       id: kuser
@@ -135,7 +140,7 @@ Item {
     RowLayout {
       id: headerLabelRow
       visible: !searching
-      
+
       function reset() {
         if(showAllApps) {
           var currentCategory = appList.getCurrentCategory();
@@ -228,9 +233,9 @@ Item {
 
         background: Rectangle {
           id: btnBg
-          color: Qt.lighter(Kirigami.Theme.backgroundColor)
+          color: main.contrastBgColor
           border.width: 1
-          border.color: Qt.darker(Kirigami.Theme.backgroundColor, 1.14)
+          border.color: main.contrastBgColor
           radius: plasmoid.configuration.enableGlow ? height / 2 : 5
 
           Rectangle {
@@ -344,7 +349,7 @@ Item {
       Layout.alignment: Qt.ALignBottom | Qt.AlignHCenter
 
       radius: 8
-      color: Qt.lighter(Kirigami.Theme.backgroundColor, 1.5) // better contrast color 
+      color: main.contrastBgColor // better contrast color 
 
       RowLayout {
         anchors.fill: parent
