@@ -29,7 +29,6 @@ import org.kde.plasma.components 3.0 as PlasmaComponents
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 
-import Qt5Compat.GraphicalEffects
 import org.kde.kirigami as Kirigami
 
 ScrollView {
@@ -100,9 +99,9 @@ ScrollView {
           id: headerLabel
           anchors.top: parent.top
           height: image.height
-          Image {
+          Kirigami.Icon {
             id: image
-            source: repeater.model.modelForRow(index).description === 'Command Line' ? "icons/feather/code.svg" : repeater.model.modelForRow(index).description == 'File Search' ? "icons/feather/search.svg" : "icons/feather/file-text.svg"
+            source: repeater.model.modelForRow(index).description === 'Command Line' ?  Qt.resolvedUrl("icons/feather/code.svg") : repeater.model.modelForRow(index).description == 'File Search' ?  Qt.resolvedUrl("icons/feather/search.svg") :  Qt.resolvedUrl("icons/feather/file-text.svg")
             width: 15 * 1
             height: width
             //visible: repeater.model.modelForRow(index).count > 0
@@ -114,12 +113,8 @@ ScrollView {
               font.family: main.textFont
               font.pointSize: main.textSize
             }
-            ColorOverlay {
-              visible: true
-              anchors.fill: image
-              source: image
-              color: main.textColor
-            }
+            isMask: true
+            color: main.textColor
           }
         }
         NavGrid {

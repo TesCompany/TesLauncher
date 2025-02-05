@@ -152,21 +152,15 @@ Item {
         }
       }
         
-      Image {
+      Kirigami.Icon {
         id: headerLabel
-        source: "icons/feather/star.svg"
+        source:  Qt.resolvedUrl("icons/feather/star.svg")
         visible: !main.showAllApps
-        
         Layout.preferredHeight: 15
         Layout.preferredWidth: 15
         Layout.fillHeight: false
-
-        ColorOverlay {
-          visible: headerLabel.visible
-          anchors.fill: headerLabel
-          source: headerLabel
-          color: main.textColor
-        }
+        isMask: true
+        color: main.textColor
       }
 
       Kirigami.Icon {
@@ -353,19 +347,15 @@ Item {
 
       RowLayout {
         anchors.fill: parent
-        Image {
-          id: searchIcon
-          Layout.preferredWidth: 15
-          Layout.preferredHeight: 15
-          Layout.margins: 15
         
-          source: 'icons/feather/search.svg'
-          ColorOverlay {
-            visible: true
-            anchors.fill: searchIcon
-            source: searchIcon
-            color: main.textColor
-          }
+        Kirigami.Icon {
+          id: searchIcon
+          Layout.preferredWidth: 21
+          Layout.preferredHeight: 21
+          Layout.margins: 12
+          source: Qt.resolvedUrl('icons/feather/search.svg')
+          isMask: true
+          color: main.textColor
         }
 
         Rectangle {

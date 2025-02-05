@@ -18,7 +18,6 @@
  ****************************************************************************/
 import org.kde.plasma.core as PlasmaCore
 import QtQuick
-import Qt5Compat.GraphicalEffects
 import org.kde.kcmutils as KCM
 
 import org.kde.plasma.private.kicker as Kicker
@@ -82,23 +81,14 @@ Item {
     width: height
     anchors.left: parent.left
 
-    PC3.ToolTip {
-        text: i18n("Settings")
-    }
-
-    Image {
-      id: settingsImage
-      anchors.verticalCenter: parent.verticalCenter
-      anchors.horizontalCenter: parent.horizontalCenter
-      source: "icons/feather/settings.svg"
-      width: iconSize
-      height: width
-      ColorOverlay {
-        visible: plasmoid.configuration.theming != 0
-        anchors.fill: settingsImage
-        source: settingsImage
+    Kirigami.Icon {
+        id: settingsImage
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.fill: parent
+        source: Qt.resolvedUrl("icons/feather/settings.svg")
+        isMask: true
         color: main.textColor
-      }
     }
     onClicked: {
       KCM.KCMLauncher.openSystemSettings("kcm_landingpage")
@@ -109,8 +99,6 @@ Item {
   PC3.RoundButton {
       id: leaveButton
       Accessible.role: Accessible.ButtonMenu
-      icon.width: Kirigami.Units.iconSizes.smallMedium
-      icon.height: Kirigami.Units.iconSizes.smallMedium
       anchors.right: parent.right
       flat: true
       height: iconSize * 1.5
@@ -118,22 +106,14 @@ Item {
       visible: true
       // Make it look pressed while the menu is open
       down: contextMenu.status === PlasmaExtras.Menu.Open || pressed
-      PC3.ToolTip.text: text
-      PC3.ToolTip.visible: hovered
-      PC3.ToolTip.delay: Kirigami.Units.toolTipDelay
-      Image {
+      Kirigami.Icon {
         id: powerImage
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
-        source: "icons/feather/power.svg"
-        width: iconSize
-        height: width
-        ColorOverlay {
-          visible: true
-          anchors.fill: powerImage
-          source: powerImage
-          color: main.textColor
-        }
+        anchors.fill: parent
+        source: Qt.resolvedUrl("icons/feather/power.svg")
+        isMask: true
+        color: Kirigami.Theme.textColor
       }
 
       Keys.onLeftPressed: event => {
