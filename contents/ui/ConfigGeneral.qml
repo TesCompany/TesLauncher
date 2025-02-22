@@ -189,7 +189,7 @@ KCM.SimpleKCM {
           id: colorDialog
           title: i18n("Please choose a color")
           onAccepted: {
-              cfg_indicatorColor = colorDialog.color
+              cfg_indicatorColor = colorDialog.selectedColor
           }
         }
     }
