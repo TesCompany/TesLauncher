@@ -86,7 +86,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
-        source: Qt.resolvedUrl("icons/feather/settings.svg")
+        source: Qt.resolvedUrl("icons/feather/stngs.svg")
         isMask: true
         color: main.textColor
     }
@@ -111,7 +111,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
-        source: Qt.resolvedUrl("icons/feather/power.svg")
+        source: Qt.resolvedUrl("icons/feather/pwr.svg")
         isMask: true
         color: Kirigami.Theme.textColor
       }
