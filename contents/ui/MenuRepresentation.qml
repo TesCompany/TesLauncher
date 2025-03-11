@@ -39,6 +39,8 @@ PlasmaCore.Dialog {
     location: Plasmoid.configuration.floating || Plasmoid.configuration.launcherPosition == 2 ? "Floating" : Plasmoid.location
     hideOnWindowDeactivate: true
 
+    Plasmoid.status: root.visible ? PlasmaCore.Types.RequiresAttentionStatus : PlasmaCore.Types.PassiveStatus
+    
     onVisibleChanged: {
         if (!visible) {
             reset();
