@@ -151,7 +151,8 @@ ScrollView {
     height: parent.height
   
     DropArea {
-      anchors.fill: parent
+      width: scrollView.width
+      height: scrollView.height
       visible: !main.showAllApps
       onDragMove: event => {
 

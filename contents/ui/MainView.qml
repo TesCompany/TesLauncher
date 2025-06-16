@@ -51,7 +51,7 @@ Item {
   property bool showAllApps: false
 
   property bool isDarkTheme: ColorType.isDark(bgColor)
-  property color contrastBgColor: isDarkTheme ? Qt.rgba(255, 255, 255, 0.15) : Qt.rgba(255, 255, 255, 0.45)
+  property color contrastBgColor: isDarkTheme ? Qt.rgba(255, 255, 255, 0.15) : Qt.rgba(255, 255, 255, 0.25)
 
   KCoreAddons.KUser {
       id: kuser
@@ -76,7 +76,7 @@ Item {
   Rectangle {
     id: backdrop
     x: 0
-    y: 125 * 1
+    y: isTop ? 125 : 90
     width: main.width
     height: isTop ? main.height - y - Kirigami.Units.largeSpacing : main.height - y //- (searchBarContainer.height + 20)
     color: bgColor
@@ -91,7 +91,7 @@ Item {
       id: floatingAvatar
       //visualParent: root
       isTop: main.isTop
-      avatarWidth: 125 * 1
+      avatarWidth: 110
       visible: root.visible && !isTop ? true : root.visible && plasmoid.configuration.floating ? true : false
     }
   }
@@ -124,7 +124,7 @@ Item {
     id: greeting
     visible: true//floatingAvatar.visible
     x: main.width / 2 - textWidth / 2 //This centeres the Text
-    y: main.isTop ? 95 : 70 
+    y: main.isTop ? 95 : 50 
     textSize: 20 
   }
 
@@ -135,6 +135,7 @@ Item {
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.bottom: parent.bottom
+
     spacing: 2
 
     RowLayout {
@@ -197,14 +198,14 @@ Item {
         text: i18n(showAllApps ? "Back" : "All apps")
         flat: false
         
-        topPadding: 5
+        topPadding: 6
         bottomPadding: topPadding
-        leftPadding: 8
-        rightPadding: 8
+        leftPadding: 10
+        rightPadding: 10
 
         visible: !searching
 
-        icon.name: showAllApps ? "go-previous" : "go-next"
+      //  icon.name: showAllApps ? "go-previous" : "go-next"
         icon.height: 15
         icon.width: icon.height
 
@@ -230,7 +231,7 @@ Item {
           color: main.contrastBgColor
           border.width: 1
           border.color: main.contrastBgColor
-          radius: plasmoid.configuration.enableGlow ? height / 2 : 5
+          radius: height / 2
 
           Rectangle {
             id: bgMask
@@ -280,8 +281,9 @@ Item {
       state: "visible"
 
       Layout.fillWidth: true
-      Layout.preferredHeight: root.cellSizeHeight*3
-
+      Layout.preferredHeight: !showAllApps ? root.cellSizeHeight*3 : -1
+      Layout.fillHeight: !showAllApps ? false : true
+  
       visible: opacity > 0
       states: [
       State {
