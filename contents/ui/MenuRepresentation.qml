@@ -28,7 +28,7 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components 3.0 as PlasmaComponents
 
 import org.kde.plasma.plasmoid 2.0
-
+import org.kde.kirigami as Kirigami
 
 PlasmaCore.Dialog {
     id: root
@@ -40,6 +40,22 @@ PlasmaCore.Dialog {
     hideOnWindowDeactivate: true
 
     Plasmoid.status: root.visible ? PlasmaCore.Types.RequiresAttentionStatus : PlasmaCore.Types.PassiveStatus
+
+    property int iconSize: { 
+      switch(Plasmoid.configuration.appsIconSize){
+        case 0: return Kirigami.Units.iconSizes.smallMedium;
+        case 1: return Kirigami.Units.iconSizes.medium;
+        case 2: return Kirigami.Units.iconSizes.large;
+        case 3: return Kirigami.Units.iconSizes.huge;
+        default: return 64
+      }
+    }
+
+    property int cellSizeHeight: iconSize
+                                     + Kirigami.Units.gridUnit * 2
+                                     + (2 * Math.max(highlightItemSvg.margins.top + highlightItemSvg.margins.bottom,
+                                                     highlightItemSvg.margins.left + highlightItemSvg.margins.right))
+    property int cellSizeWidth: cellSizeHeight //+ Kirigami.Units.gridUnit
     
     onVisibleChanged: {
         if (!visible) {
@@ -137,7 +153,7 @@ PlasmaCore.Dialog {
     FocusScope {
         id: fs
         focus: true
-        Layout.minimumWidth: 600 * 1
+        Layout.minimumWidth:  (root.cellSizeWidth * Plasmoid.configuration.numberColumns)+ Kirigami.Units.gridUnit*1.5
         Layout.minimumHeight: 550 * 1
         Layout.maximumWidth: Layout.minimumWidth
         Layout.maximumHeight: Layout.minimumHeight

@@ -78,5 +78,13 @@
       <label>Uses system font settings instead of themes's default.</label>
       <default>false</default>
     </entry>
+    <entry name="appsIconSize" type="Enum">
+      <label>Favorites apps icon size</label>
+      <default>2</default>
+    </entry>
+    <entry name="numberColumns" type="Int">
+      <label>Number of columns to favorites apps grid</label>
+      <default>6</default>
+    </entry>
   </group>
 </kcfg>

@@ -60,10 +60,13 @@ KCM.SimpleKCM {
 
     property alias cfg_useSystemFontSettings: useSystemFontSettings.checked
 
-    Kirigami.FormLayout {
+    property alias cfg_appsIconSize: appsIconSize.currentIndex
+    property alias cfg_numberColumns: numberColumns.value
 
-      anchors.left: parent.left
-      anchors.right: parent.right
+  Kirigami.FormLayout {
+
+    anchors.left: parent.left
+    anchors.right: parent.right
 
     Button {
       id: iconButton
@@ -237,6 +240,21 @@ KCM.SimpleKCM {
     Item {
         Kirigami.FormData.isSection: true
     }
+
+    ComboBox {
+        id: appsIconSize
+        Kirigami.FormData.label: i18n("Favorites apps icon size:")
+        model: [i18n("Small"),i18n("Medium"),i18n("Large"), i18n("Huge")]
+    }
+
+    SpinBox{
+      id: numberColumns
+
+      from: 4
+      to: 6
+      Kirigami.FormData.label: i18n("Number of columns (Favorites apps)")
+    }
+
     ComboBox {
         id: launcherPosition
         Kirigami.FormData.label: i18n("Launcher Positioning:")

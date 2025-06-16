@@ -39,7 +39,6 @@ ScrollView {
 
   property bool grabFocus: false
   property bool showDescriptions: false
-  property int iconSize: Kirigami.Units.iconSizes.medium
 
   property QtObject allAppsModel
   property QtObject recentAppsModel
@@ -145,19 +144,14 @@ ScrollView {
   onContentHeightChanged: {
     ScrollBar.vertical.position = scrollpositon * scrollheight / scrollView.contentHeight
   }
-  Column {
-    id: column
-    width: parent.width
-    onPositioningComplete: {
-      scrollView.contentHeight = height
-      if (height < appList.height) {
-        scrollView.contentHeight = appList.height
-      }
-    }
 
+  Column {
+
+    width: parent.width
+    height: parent.height
+  
     DropArea {
-      width: flow.width
-      height:flow.height
+      anchors.fill: parent
       visible: !main.showAllApps
       onDragMove: event => {
 
@@ -170,28 +164,21 @@ ScrollView {
           }
 
       }
-      GridLayout { //Favorites
+      GridView { //Favorites
         id: flow
-        width: scrollView.width 
-        columns: implicitW < parent.width ? -1 : parent.width / columnImplicitWidth
-        rowSpacing: 2
-        columnSpacing: 5
-        anchors.horizontalCenter: scrollView.horizontalCenter
+        anchors.fill: parent
 
-        property int columnImplicitWidth: children[0].width + columnSpacing
-        property int implicitW: repeater.count * columnImplicitWidth
-
+        cellWidth: root.cellSizeWidth
+        cellHeight: root.cellSizeHeight
         visible: !main.showAllApps
-        Repeater {
-          id: repeater
-          model:  plasmoid.configuration.pinnedModel == 0 ? globalFavorites : recentAppsModel
-          delegate: FavoriteItem {
-            id: favitem
-            triggerModel: repeater.model
-          }
+        model:  plasmoid.configuration.pinnedModel == 0 ? globalFavorites : recentAppsModel
+        delegate: FavoriteItem {
+          id: favitem
+          triggerModel: flow.model
         }
       }
     }
+
     Grid { //Categories
       id: appCategories
       columns: 1
@@ -208,13 +195,7 @@ ScrollView {
         }
       }
     }
-
-    Item { //Spacer
-      width: 1
-      height: 20 * 1
-    }
   }
-
   Component.onCompleted: {
     scrollView.recentAppsModel = rootModel.modelForRow(0);
   }

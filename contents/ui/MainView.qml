@@ -280,7 +280,7 @@ Item {
       state: "visible"
 
       Layout.fillWidth: true
-      Layout.fillHeight: true
+      Layout.preferredHeight: root.cellSizeHeight*3
 
       visible: opacity > 0
       states: [

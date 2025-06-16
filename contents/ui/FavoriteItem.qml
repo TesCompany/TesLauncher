@@ -33,12 +33,10 @@ import "../code/tools.js" as Tools
 Item {
   id: favItem
 
-  property int iconSize: Kirigami.Units.gridUnit * 3.2
-
   property var triggerModel
 
-  width:  112
-  height: iconSize + Kirigami.Units.smallSpacing + appname.implicitHeight + 10
+  width: root.cellSizeWidth
+  height: root.cellSizeHeight
 
   signal itemActivated(int index, string actionId, string argument)
   signal actionTriggered(string actionId, variant actionArgument)
@@ -72,12 +70,10 @@ Item {
 
  Kirigami.Icon {
     id: appicon
-    anchors {
-      top: parent.top
-      horizontalCenter: parent.horizontalCenter
-    }
-    width: iconSize
-    height: iconSize
+    y: (2 * highlightItemSvg.margins.top) 
+    anchors.horizontalCenter: parent.horizontalCenter
+    width: root.iconSize
+    height: width
     source: model.decoration
   }
 
@@ -96,9 +92,8 @@ Item {
       rightMargin: Kirigami.Units.smallSpacing
     }
     textFormat: Text.PlainText
-    elide: Text.ElideRight
+    elide: Text.ElideMiddle
     horizontalAlignment: Text.AlignHCenter
-    verticalAlignment: Text.AlignTop
     maximumLineCount: 2
     wrapMode: Text.Wrap
   }
