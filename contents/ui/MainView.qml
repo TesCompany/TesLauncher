@@ -30,8 +30,8 @@ import "js/colorType.js" as ColorType
 
 Item {
   id: main
-  property bool searching: (searchBar.text != "")
-  signal  newTextQuery(string text)
+  property bool searching: (searchBar.textField.text != "")
+ // signal  newTextQuery(string text)
 
   readonly property color textColor: Kirigami.Theme.textColor
   readonly property string textFont: plasmoid.configuration.useSystemFontSettings ? Kirigami.Theme.defaultFont : "SF Pro Text"
@@ -62,13 +62,11 @@ Item {
   }
 
   function reload() {
-    searchBar.clear()
-    searchBar.focus = true
+    searchBar.textField.clear()
     appList.reset()
   }
   function reset(){
-    searchBar.clear()
-    searchBar.focus = true
+    searchBar.textField.clear()
     appList.reset()
     headerLabelRow.reset()
   }
@@ -314,6 +312,9 @@ Item {
       Layout.fillWidth: true
       Layout.fillHeight: true
 
+      Keys.priority: Keys.AfterItem
+      Keys.forwardTo: searchBar.textField
+
       states: [
       State {
         name: "visible"; when: (searching)
@@ -337,122 +338,13 @@ Item {
 
     // Search Bar
 
-    Rectangle {
-      id: searchBarContainer
-
+    SearchBar {
+      id: searchBar
       Layout.fillWidth: true
       Layout.preferredHeight: 45
-      Layout.alignment: Qt.ALignBottom | Qt.AlignHCenter
-
-      radius: 8
-      color: main.contrastBgColor // better contrast color 
-
-      RowLayout {
-        anchors.fill: parent
-        
-        Kirigami.Icon {
-          id: searchIcon
-          Layout.preferredWidth: 21
-          Layout.preferredHeight: 21
-          Layout.margins: 12
-          source: Qt.resolvedUrl('icons/feather/search.svg')
-          isMask: true
-          color: main.textColor
-        }
-
-        Rectangle {
-
-          Layout.fillHeight: true
-          Layout.fillWidth: true
-          Layout.rightMargin: 15
-
-          clip: true
-          color: 'transparent'
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.IBeamCursor
-            hoverEnabled: true
-          }
-          TextInput {
-            id: searchBar
-            width: parent.width
-            anchors.verticalCenter: parent.verticalCenter
-            focus: true
-            color: textColor
-            selectByMouse: true
-            selectionColor: highlightColor
-            font.family: textFont
-            font.pixelSize: 13 * 1
-            Text {
-              anchors.fill: parent
-              text: i18n("Search your computer")
-              color: Kirigami.Theme.disabledTextColor
-              visible: !parent.text
-            }
-            onTextChanged: {
-                runnerModel.query = text;
-                newTextQuery(text)
-            }
-            function clear() {
-                text = "";
-            }
-            function backspace() {
-                if (searching) {
-                    text = text.slice(0, -1);
-                }
-                focus = true;
-            }
-            function appendText(newText) {
-                if (!root.visible) {
-                    return;
-                }
-                focus = true;
-                text = text + newText;
-            }
-            Keys.onPressed: {
-              if (event.key == Qt.Key_Down) {
-                event.accepted = true;
-                runnerList.setFocus()
-              } else if (event.key == Qt.Key_Tab || event.key == Qt.Key_Up) {
-                event.accepted = true;
-                runnerList.setFocus()
-              } else if (event.key == Qt.Key_Escape) {
-                event.accepted = true;
-                if (searching) {
-                  clear()
-                } else {
-                  root.toggle()
-                }
-              } else if (event.key == Qt.Key_Enter || event.key == Qt.Key_Return) {
-                runnerList.setFocus()
-                runnerList.triggerFirst()
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  Keys.onPressed: {
-    if (event.key == Qt.Key_Backspace) {
-        event.accepted = true;
-        if (searching)
-            searchBar.backspace();
-        else
-            searchBar.focus = true
-    } else if (event.key == Qt.Key_Escape) {
-        event.accepted = true;
-        if (searching) {
-            searchBar.clear()
-        } else {
-            root.toggle()
-        }
-    } else if (event.text != "" || event.key == Qt.Key_Down) {
-        if (event.key != Qt.Key_Return){
-          event.accepted = true;
-          searchBar.appendText(event.text);
-        }
+      Layout.maximumHeight: Layout.preferredHeight
+      Keys.priority: Keys.AfterItem
+      Keys.forwardTo: runnerList
     }
   }
 }
