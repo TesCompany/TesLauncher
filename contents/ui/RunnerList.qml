@@ -31,167 +31,48 @@ import QtQuick.Controls 2.15
 
 import org.kde.kirigami as Kirigami
 
-ScrollView {
-  id: runnerList
+AppListView {
 
-  contentWidth: - 1 //no horizontal scrolling
+  Loader {
+    anchors.centerIn: main
+    width: listView.width - (Kirigami.Units.gridUnit * 4)
 
-  
-//  focus: true
-  property alias model: repeater.model
-  property alias count: repeater.count
+    active: listView.count === 0
+    visible: active
+    asynchronous: true
 
-  // ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-  // ScrollBar.vertical.policy: ScrollBar.AsNeeded
+    sourceComponent: PlasmaExtras.PlaceholderMessage {
+      id: emptyHint
 
-  property int currentMainIndex: 0
-  property int currentSubIndex: 0
+      iconName: "edit-none"
+      opacity: 0
+      text: i18nc("@info:status", "No matches")
 
-  onFocusChanged: {
-    if (!focus) {
-      for (var i = 0; i < repeater.count; i++) {
-        repeater.itemAt(i).nGrid.focus = false
-      }
-    } else {
-      currentMainIndex = 0
-      for (var i = 0; i < repeater.count; ++i) {
-        if (repeater.itemAt(i).nGrid.count > 0) {
-          currentSubIndex = i
-          repeater.itemAt(i).nGrid.setFocus();
-          break
+      Connections {
+        target: runnerModel
+        function onQueryFinished() {
+          showAnimation.restart()
         }
+      }
+
+      NumberAnimation {
+        id: showAnimation
+        duration: Kirigami.Units.longDuration
+        easing.type: Easing.OutCubic
+        property: "opacity"
+        target: emptyHint
+        to: 1
       }
     }
   }
 
-  function get_position(){
-    return flickableItem.contentY / (flickableItem.contentHeight - height)
-  }
-  function get_size(){
-    return (flickableItem.contentHeight <= height ? -1 : 0.99999)
-  }
-  function setFocus() {
-    currentMainIndex = 0
-    for (var i = 0; i < repeater.count; ++i) {
-      if (repeater.itemAt(i).nGrid.count > 0) {
-        currentSubIndex = i
-        repeater.itemAt(i).nGrid.setFocus();
-        break
-      }
-    }
-  }
-  function triggerFirst(){
-    repeater.itemAt(currentSubIndex).nGrid.currentItem.trigger()
-  }
-
-
-  Column {
-    Repeater {
-      id: repeater
-      delegate:
-      Item {
-        id: section
-        width: runnerList.width
-        height: headerLabel.height + navGrid.height + (index == repeater.count - 1 ? 0 : 10)
-        visible: navGrid.count > 0
-        property Item nGrid: navGrid
-        Item {
-          id: headerLabel
-          anchors.top: parent.top
-          height: image.height
-          Kirigami.Icon {
-            id: image
-            source: repeater.model.modelForRow(index).description === 'Command Line' ?  Qt.resolvedUrl("icons/feather/code.svg") : repeater.model.modelForRow(index).description == 'File Search' ?  Qt.resolvedUrl("icons/feather/search.svg") :  Qt.resolvedUrl("icons/feather/file-text.svg")
-            width: 15 * 1
-            height: width
-            //visible: repeater.model.modelForRow(index).count > 0
-            PlasmaComponents.Label {
-              x: parent.width + 10 * 1
-              anchors.verticalCenter: parent.verticalCenter
-              text: repeater.model.modelForRow(index).name
-              color: main.textColor
-              font.family: main.textFont
-              font.pointSize: main.textSize
-            }
-            isMask: true
-            color: main.textColor
-          }
-        }
-        NavGrid {
-          id: navGrid
-          width: runnerList.width
-          height: Math.ceil(count * (42 * 1 )) + 10 * 1
-          anchors.top: headerLabel.bottom
-          subIndex: index
-          triggerModel: repeater.model.modelForRow(index)
-          
-          onFocusChanged: {
-            if (focus) {
-              runnerList.focus = true;
-            }
-          }
-          onCountChanged: {
-            if (index == 0 && count > 0) {
-              currentIndex = 0;
-              focus = true;
-            }
-          }
-          onCurrentItemChanged: {
-            if (!currentItem) {
-              return;
-            }
-            if (currentItem.isMouseHighlight) {
-              return
-            }
-            if (index == 0 && currentIndex === 0) {
-              nGrid.flickableItem.contentY = 0;
-              return;
-            }
-            var y = currentItem.y;
-            y = contentItem.mapToItem(runnerList.contentItem, 0, y).y;
-            if (y < runnerList.contentItem.contentY) {
-              flickableItem.contentY = y;
-            } else {
-              y += currentItem.height + 20 * 1 + 15 * 1;
-              y -= runnerList.contentItem.contentY;
-              y -= runnerList.height;
-
-              if (y > 0) {
-                runnerList.contentItem.contentY += y;
-              }
-            }
-          }
-          onKeyNavUp: {
-            if (index > 0) {
-              for (var i = index - 1; i > -1; --i) {
-                if (repeater.itemAt(i).nGrid.count > 0) {
-                  repeater.itemAt(i).nGrid.setFocusLast()
-                  currentSubIndex = index - 1
-                  break
-                }
-              }
-            }
-          }
-
-          onKeyNavDown: {
-            if (index < repeater.count - 1) {
-              for (var i = index + 1; i < repeater.count; ++i) {
-                if (repeater.itemAt(i).nGrid.count > 0) {
-                  repeater.itemAt(i).nGrid.setFocus()
-                  currentSubIndex = index + 1
-                  break
-                }
-              }
-            }
-          }
-        }
-        // Kicker.WheelInterceptor {
-        //   anchors.fill: navGrid
-        //  // z: -1
-        //   destination: findWheelArea(runnerList.flickableItem)
-        // }
-
-      }
+  Connections {
+    target: runnerModel
+    function onQueryChanged() { 
+      runnerList.model = runnerModel.modelForRow(0) 
+      runnerList.blockingHoverFocus = true
+      runnerList.interceptedPosition = null
+      runnerList.listView.currentIndex = 0
     }
   }
 }

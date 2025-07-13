@@ -344,7 +344,7 @@ Item {
       Layout.preferredHeight: 45
       Layout.maximumHeight: Layout.preferredHeight
       Keys.priority: Keys.AfterItem
-      Keys.forwardTo: runnerList
+      Keys.forwardTo: runnerList.listView
     }
   }
 }

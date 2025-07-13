@@ -48,7 +48,7 @@ KCM.SimpleKCM {
     property bool cfg_enableGreeting: Plasmoid.configuration.enableGreeting
     property alias cfg_defaultPage: defaultPage.currentIndex
     property alias cfg_pinnedModel: pinnedModel.currentIndex
-    property alias cfg_useExtraRunners: useExtraRunners.checked
+    property alias cfg_compactListItems: compactListItems.checked
     property alias cfg_customGreeting: customGreeting.text
     property alias cfg_floating: floating.checked
     property alias cfg_launcherPosition: launcherPosition.currentIndex
@@ -337,9 +337,9 @@ KCM.SimpleKCM {
         Kirigami.FormData.isSection: true
     }
     CheckBox {
-        id: useExtraRunners
-        Kirigami.FormData.label: i18n("Search:")
-        text: i18n("Expand search to bookmarks, files and emails")
+      id: compactListItems
+      Kirigami.FormData.label: i18n("Lists:")
+      text: i18n("Compact list items (search results)")
     }
 
     Item {

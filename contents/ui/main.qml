@@ -194,21 +194,7 @@ PlasmoidItem {
 
         favoritesModel: globalFavorites
         appletInterface: kicker
-        
-
-        runners: {
-            const results = ["krunner_services", "krunner_systemsettings"];
-
-            if (kicker.isDash) {
-                results.push("krunner_sessions", "krunner_powerdevil", "calculator", "unitconverter");
-            }
-
-            if (Plasmoid.configuration.useExtraRunners) {
-                results.push(...Plasmoid.configuration.extraRunners);
-            }
-
-            return results;
-        }
+        mergeResults: true
     }
 
     Kicker.DragHelper {
