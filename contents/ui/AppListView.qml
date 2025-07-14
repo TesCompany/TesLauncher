@@ -32,7 +32,7 @@ import QtQuick.Controls 2.15
 import org.kde.kirigami as Kirigami
 
 ScrollView {
-  id: appLIstView
+  id: appListView
 
   property alias listView: listView
   property alias model: listView.model
@@ -76,7 +76,7 @@ ScrollView {
       radius: 10
       z: -20
     }
-    delegate: AppLIstViewDelegate {
+    delegate: AppListViewDelegate {
       triggerModel: listView.model
       width: listView.availableWidth
     }
@@ -219,25 +219,25 @@ ScrollView {
 
   Connections {
     target: blockHoverFocusHandler
-    enabled: blockHoverFocusHandler.enabled && !appLIstView.interceptedPosition
+    enabled: blockHoverFocusHandler.enabled && !appListView.interceptedPosition
     function onPointChanged() {
-      appLIstView.interceptedPosition = blockHoverFocusHandler.point.position
+      appListView.interceptedPosition = blockHoverFocusHandler.point.position
     }
   }
 
   Connections {
     target: blockHoverFocusHandler
-    enabled: blockHoverFocusHandler.enabled && appLIstView.interceptedPosition && appLIstView.blockingHoverFocus
+    enabled: blockHoverFocusHandler.enabled && appListView.interceptedPosition && appListView.blockingHoverFocus
     function onPointChanged() {
-      if (blockHoverFocusHandler.point.position === appLIstView.interceptedPosition) {
+      if (blockHoverFocusHandler.point.position === appListView.interceptedPosition) {
           return;
       }
-      appLIstView.blockingHoverFocus = false
+      appListView.blockingHoverFocus = false
     }
   }
 
   HoverHandler {
     id: blockHoverFocusHandler
-    enabled: (!appLIstView.interceptedPosition || appLIstView.blockingHoverFocus)
+    enabled: (!appListView.interceptedPosition || appListView.blockingHoverFocus)
   }
 }
