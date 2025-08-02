@@ -85,31 +85,17 @@ PlasmoidItem {
         appletInterface: kicker
 
         showAllApps: true
-        showAllAppsCategorized: true
-        showTopLevelItems: !kicker.isDash
+        showAllAppsCategorized: false
+        showTopLevelItems: true//!kicker.isDash
         showRecentApps: true // Plasmoid.configuration.showRecentApps
-        showRecentDocs: false //Plasmoid.configuration.showRecentDocs
-       // showRecentContacts: Plasmoid.configuration.showRecentContacts
-        recentOrdering: 1 // Plasmoid.configuration.recentOrdering
-
-        onShowRecentAppsChanged: {
-            Plasmoid.configuration.showRecentApps = showRecentApps;
-        }
-
-        onShowRecentDocsChanged: {
-            Plasmoid.configuration.showRecentDocs = showRecentDocs;
-        }
-
-        // onShowRecentContactsChanged: {
-        //     plasmoid.configuration.showRecentContacts = showRecentContacts;
-        // }
+        showRecentDocs: true //Plasmoid.configuration.showRecentDocs
+        showPowerSession: false
+       // showRecentContacts: true//Plasmoid.configuration.showRecentContacts
+       // recentOrdering: 1 // Plasmoid.configuration.recentOrdering
 
         onRecentOrderingChanged: {
             Plasmoid.configuration.recentOrdering = recentOrdering;
         }
-
-
-        
 
         Component.onCompleted: {
             favoritesModel.initForClient("org.kde.plasma.kicker.favorites.instance-" + Plasmoid.id)
@@ -122,43 +108,6 @@ PlasmoidItem {
                 Plasmoid.configuration.favoritesPortedToKAstats = true;
             }
         }
-
-        // onFavoritesModelChanged: {
-        //     if ("initForClient" in favoritesModel) {
-        //         favoritesModel.initForClient("org.kde.plasma.kicker.favorites.instance-" + plasmoid.id)
-
-        //         if (!plasmoid.configuration.favoritesPortedToKAstats) {
-        //             favoritesModel.portOldFavorites(plasmoid.configuration.favoriteApps);
-        //             plasmoid.configuration.favoritesPortedToKAstats = true;
-        //         }
-        //     } else {
-        //         favoritesModel.favorites = plasmoid.configuration.favoriteApps;
-        //     }
-
-        //     favoritesModel.maxFavorites = pageSize;
-        // }
-
-        // onSystemFavoritesModelChanged: {
-        //     systemFavoritesModel.enabled = false;
-        //     systemFavoritesModel.favorites = plasmoid.configuration.favoriteSystemActions;
-        //     systemFavoritesModel.maxFavorites = 6;
-        // }
-
-        // Component.onCompleted: {
-        //     if ("initForClient" in favoritesModel) {
-        //         favoritesModel.initForClient("org.kde.plasma.kicker.favorites.instance-" + plasmoid.id)
-
-        //         if (!plasmoid.configuration.favoritesPortedToKAstats) {
-        //             favoritesModel.portOldFavorites(plasmoid.configuration.favoriteApps);
-        //             plasmoid.configuration.favoritesPortedToKAstats = true;
-        //         }
-        //     } else {
-        //         favoritesModel.favorites = plasmoid.configuration.favoriteApps;
-        //     }
-
-        //     favoritesModel.maxFavorites = pageSize;
-        //     rootModel.refresh();
-        // }
     }
 
     Connections {
@@ -237,6 +186,14 @@ PlasmoidItem {
         property Item toolTip
 
         text: (toolTip != null) ? toolTip.text : ""
+    }
+
+    PlasmaComponents.ScrollBar {
+        id: scrollBarMetrics
+        parent: kicker
+        height: kicker.height
+        anchors.right: parent.right
+        visible: false
     }
 
     function resetDragSource() {

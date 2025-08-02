@@ -48,7 +48,7 @@ KCM.SimpleKCM {
     property bool cfg_enableGreeting: Plasmoid.configuration.enableGreeting
     property alias cfg_defaultPage: defaultPage.currentIndex
     property alias cfg_pinnedModel: pinnedModel.currentIndex
-    property alias cfg_compactListItems: compactListItems.checked
+
     property alias cfg_customGreeting: customGreeting.text
     property alias cfg_floating: floating.checked
     property alias cfg_launcherPosition: launcherPosition.currentIndex
@@ -59,9 +59,6 @@ KCM.SimpleKCM {
     property alias cfg_glowColor: glowColor.currentIndex
 
     property alias cfg_useSystemFontSettings: useSystemFontSettings.checked
-
-    property alias cfg_appsIconSize: appsIconSize.currentIndex
-    property alias cfg_numberColumns: numberColumns.value
 
   Kirigami.FormLayout {
 
@@ -242,20 +239,6 @@ KCM.SimpleKCM {
     }
 
     ComboBox {
-        id: appsIconSize
-        Kirigami.FormData.label: i18n("Favorites apps icon size:")
-        model: [i18n("Small"),i18n("Medium"),i18n("Large"), i18n("Huge")]
-    }
-
-    SpinBox{
-      id: numberColumns
-
-      from: 4
-      to: 6
-      Kirigami.FormData.label: i18n("Number of columns (Favorites apps)")
-    }
-
-    ComboBox {
         id: launcherPosition
         Kirigami.FormData.label: i18n("Launcher Positioning:")
         model: [
@@ -332,14 +315,6 @@ KCM.SimpleKCM {
         i18n("Utilities"),
         i18n("Lost & Found"),
         ]
-    }
-    Item {
-        Kirigami.FormData.isSection: true
-    }
-    CheckBox {
-      id: compactListItems
-      Kirigami.FormData.label: i18n("Lists:")
-      text: i18n("Compact list items (search results)")
     }
 
     Item {

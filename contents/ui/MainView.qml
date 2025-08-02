@@ -214,16 +214,11 @@ Item {
         LayoutMirroring.childrenInherit: !showAllApps 
         Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
-        MouseArea {
-            hoverEnabled: true
-            anchors.fill: parent
-            cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: {
-              showAllApps = !showAllApps;
-              headerLabelRow.reset();
-            }
+        onClicked: {
+          showAllApps = !showAllApps;
+          headerLabelRow.reset();
+          searchBar.textField.forceActiveFocus(Qt.BacktabFocusReason);
         }
-
         background: Rectangle {
           id: btnBg
           color: main.contrastBgColor
@@ -271,27 +266,43 @@ Item {
         }
       }
     }
+    Item {
+      visible: !appList.visible && !searching
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+    }
 
+    PinnedApps{
+      id: pinnedApps
+      Layout.fillWidth: true
+      Layout.preferredHeight: root.cellSizeHeight*3
+      Keys.priority: Keys.AfterItem
+      Keys.forwardTo: searchBar.textField
+
+      visible: !appList.visible && !searching
+    }
 
     //List of Apps
-    AppList {
+    AllAppsList{
       id: appList
-      state: "visible"
-
+      state: "hidden"
+      Layout.fillHeight: true
       Layout.fillWidth: true
-      Layout.preferredHeight: !showAllApps ? root.cellSizeHeight*3 : -1
-      Layout.fillHeight: !showAllApps ? false : true
-  
+
+      Keys.priority: Keys.AfterItem
+      Keys.forwardTo: searchBar.textField
+
       visible: opacity > 0
       states: [
-      State {
-        name: "visible"; when: (!searching)
-        PropertyChanges { target: appList; opacity: 1.0 }
-      },
-      State {
-        name: "hidden"; when: (searching)
-        PropertyChanges { target: appList; opacity: 0.0}
-      }]
+        State {
+          name: "visible"; when: (showAllApps && !searching)
+          PropertyChanges { target: appList; opacity: 1.0 }
+        },
+        State {
+          name: "hidden"; when: (!showAllApps || searching)
+          PropertyChanges { target: appList; opacity: 0.0}
+        }
+      ]
       transitions: [
         Transition {
           to: "visible"
@@ -303,6 +314,7 @@ Item {
         }
       ]
     }
+    
     RunnerList {
       id: runnerList
       model: runnerModel
@@ -336,6 +348,12 @@ Item {
       ]
     }
 
+    Item {
+      visible: !appList.visible && !searching
+      Layout.fillWidth: true
+      Layout.fillHeight: true
+    }
+
     // Search Bar
 
     SearchBar {
@@ -344,7 +362,7 @@ Item {
       Layout.preferredHeight: 45
       Layout.maximumHeight: Layout.preferredHeight
       Keys.priority: Keys.AfterItem
-      Keys.forwardTo: runnerList.listView
+      Keys.forwardTo: searching ? runnerList : showAllApps ? appList.viewItem : pinnedApps
     }
   }
 }

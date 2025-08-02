@@ -70,6 +70,10 @@
       <label>Show list items in a compact format</label>
       <default>false</default>
     </entry>
+    <entry name="showItemsInGrid" type="Bool">
+      <label>Show list items in a compact format</label>
+      <default>false</default>
+    </entry>
     <entry name="extraRunners" type="StringList">
       <label>The plugin id's of additional KRunner plugins to use. Only used if useExtraRunners is true.</label>
       <default>shell,bookmarks,baloosearch,locations</default>

@@ -25,6 +25,11 @@ ConfigModel {
     ConfigCategory {
          name: i18n("General")
          icon: "preferences-desktop-plasma"
-         source: "ConfigGeneral.qml"
+         source: "config/ConfigGeneral.qml"
+    }
+    ConfigCategory {
+        name: i18n("Lists and grids")
+        icon: "view-list-details"
+        source: "config/ListAndGrid.qml"
     }
 }

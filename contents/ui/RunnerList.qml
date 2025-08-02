@@ -32,12 +32,13 @@ import QtQuick.Controls 2.15
 import org.kde.kirigami as Kirigami
 
 AppListView {
+  id: searchList
 
   Loader {
-    anchors.centerIn: main
-    width: listView.width - (Kirigami.Units.gridUnit * 4)
+    anchors.fill: parent
+    width: searchList.width - (Kirigami.Units.gridUnit * 4)
 
-    active: listView.count === 0
+    active: searchList.count === 0
     visible: active
     asynchronous: true
 
@@ -72,7 +73,7 @@ AppListView {
       runnerList.model = runnerModel.modelForRow(0) 
       runnerList.blockingHoverFocus = true
       runnerList.interceptedPosition = null
-      runnerList.listView.currentIndex = 0
+      runnerList.currentIndex = 0
     }
   }
 }

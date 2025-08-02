@@ -42,21 +42,21 @@ Item {
   signal actionTriggered(string actionId, variant actionArgument)
   signal aboutToShowActionMenu(variant actionMenu)
 
-
-  property bool highlighted: false
   property bool isDraging: false
 
   property bool hasActionList: ((model.favoriteId !== null)
-      || (("hasActionList" in model) && (model.hasActionList !== null)))
-    
-  property int itemIndex: model.index
-
+      || (("hasActionList" in model) && (model.hasActionList !== null)))    
 
   function openActionMenu(visualParent, x, y) {
-        aboutToShowActionMenu(actionMenu);
-        actionMenu.visualParent = visualParent;
-        actionMenu.open(x, y);
-    }
+    aboutToShowActionMenu(actionMenu);
+    actionMenu.visualParent = visualParent;
+    actionMenu.open(x, y);
+  }
+
+  function trigger() {
+    triggerModel.trigger(index, "", null);
+    root.toggle()
+  }
 
   onAboutToShowActionMenu: actionMenu => {
         const actionList = (model.hasActionList !== null) ? model.actionList : [];
@@ -98,49 +98,6 @@ Item {
     wrapMode: Text.Wrap
   }
 
-  Rectangle {
-    id: highlightItem
-    visible: !plasmoid.configuration.enableGlow
-    height: parent.height
-    width: parent.width 
-    radius: 8
-    z: -20
-    color: "transparent"
-    clip: true
-    anchors.centerIn: parent
-    // apply rounded corners mask
-    layer.enabled: true
-    layer.effect: OpacityMask {
-        maskSource: Rectangle {
-            x: highlightItem.x; y: highlightItem.y
-            width: highlightItem.width
-            height: highlightItem.height
-            radius: highlightItem.radius
-        }
-    }
-
-    PlasmaExtras.Highlight {
-      id: rect
-      visible: !plasmoid.configuration.enableGlow
-      anchors.fill: parent
-      states: [
-        State {
-          name: "highlight"; when: (highlighted)
-          PropertyChanges { target: rect; active: true}
-          PropertyChanges { target: rect; hovered: true}
-          PropertyChanges { target: rect; opacity: 1}
-        },
-        State {
-          name: "default"; when: (!highlighted)
-          PropertyChanges { target: rect; active: false}
-          PropertyChanges { target: rect; hovered: false}
-          PropertyChanges { target: rect; opacity: 0}
-        }
-      ]
-      transitions: highlight
-    }
-  }
-
   DropShadow {
     id:appIconGlow
     visible: plasmoid.configuration.enableGlow
@@ -154,12 +111,12 @@ Item {
     source: appicon
     states: [
       State {
-        name: "highlight"; when: (highlighted)
+        name: "highlight"; when: (focus)
         PropertyChanges { target: appIconGlow; opacity: 1}
          PropertyChanges { target: appNameGlow; opacity: 1}
       },
       State {
-        name: "default"; when: (!highlighted)
+        name: "default"; when: (!focus)
         PropertyChanges { target: appIconGlow; opacity: 0}
         PropertyChanges { target: appNameGlow; opacity: 0}
       }
@@ -186,7 +143,7 @@ Item {
       z: parent.z + 1
       acceptedButtons: Qt.LeftButton | Qt.RightButton
       cursorShape: Qt.PointingHandCursor
-      hoverEnabled: true
+      hoverEnabled: !grid.movedWithWheel
       onClicked: {
        
           if (mouse.button == Qt.RightButton ) {
@@ -195,8 +152,7 @@ Item {
                 favItem.openActionMenu(favItem, mouse.x, mouse.y);
             }
           } else {
-           triggerModel.trigger(index, "", null);
-            root.toggle()
+           trigger();
           }
         
       }
@@ -204,16 +160,24 @@ Item {
         isDraging: false
       }
       onEntered: {
-        if(plasmoid.configuration.enableGlow) {
-          appIconGlow.state = "highlight"
-        } else { rect.state = "highlight" }
-        
+          // - When the movedWithKeyboard condition is broken, we do not want to
+          //   select the hovered item without moving the mouse.
+          // - Don't highlight separators.
+          // - Don't switch category items on hover if the setting isn't enabled
+          if (grid.movedWithKeyboard) {
+              return
+          }
+
+          // forceActiveFocus() touches multiple items, so check for
+          // activeFocus first to be more efficient.
+          if (!grid.activeFocus) {
+              grid.forceActiveFocus(Qt.MouseFocusReason)
+          }
+          // No need to check currentIndex first because it's
+          // built into QQuickListView::setCurrentIndex() already
+          grid.currentIndex = index        
       }
-      onExited: {
-        if(plasmoid.configuration.enableGlow) {
-          appIconGlow.state = "default"
-        } else { rect.state = "default" }
-      }
+
       onPositionChanged: {
         isDraging = pressed
         if (pressed){

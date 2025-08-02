@@ -151,7 +151,7 @@ T.ItemDelegate {
       z: parent.z + 1
       acceptedButtons: Qt.LeftButton | Qt.RightButton
       cursorShape: Qt.PointingHandCursor
-      hoverEnabled:  !listView.movedWithWheel && !runnerList.blockingHoverFocus
+      hoverEnabled: !listView.movedWithWheel && !listView.blockingHoverFocus
       onClicked: {
           if (mouse.button == Qt.RightButton) {
             if (allItem.hasActionList) {
@@ -187,7 +187,7 @@ T.ItemDelegate {
       }
       onPositionChanged: {
         isDraging = pressed
-        if (pressed && canDrag){
+        if (pressed){
           if ("pluginName" in model) {
             dragHelper.startDrag(kicker, model.url, model.decoration,
                 "text/x-plasmoidservicename", model.pluginName);

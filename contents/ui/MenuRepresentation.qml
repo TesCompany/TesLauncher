@@ -153,7 +153,7 @@ PlasmaCore.Dialog {
     FocusScope {
         id: fs
         focus: true
-        Layout.minimumWidth:  (root.cellSizeWidth * Plasmoid.configuration.numberColumns)+ Kirigami.Units.gridUnit*1.5
+        Layout.minimumWidth:  (root.cellSizeWidth * Plasmoid.configuration.numberColumns) + scrollBarMetrics.width + innerPadding*2
         Layout.minimumHeight: 550 * 1
         Layout.maximumWidth: Layout.minimumWidth
         Layout.maximumHeight: Layout.minimumHeight
@@ -177,7 +177,7 @@ PlasmaCore.Dialog {
           }
         }
 
-        Keys.onPressed: {
+        Keys.onPressed: event => {
             if (event.key == Qt.Key_Escape) {
                 root.visible = false;
             }
