@@ -53,6 +53,8 @@ Item {
   property bool isDarkTheme: ColorType.isDark(bgColor)
   property color contrastBgColor: isDarkTheme ? Qt.rgba(255, 255, 255, 0.15) : Qt.rgba(255, 255, 255, 0.25)
 
+  property int pinnedModel: plasmoid.configuration.pinnedModel
+
   KCoreAddons.KUser {
       id: kuser
   }
@@ -70,6 +72,8 @@ Item {
     appList.reset()
     headerLabelRow.reset()
   }
+
+  onPinnedModelChanged: headerLabelRow.reset()
 
   Rectangle {
     id: backdrop
@@ -147,7 +151,7 @@ Item {
           sortingImage.source = currentCategory.icon;
           appList.updateShowedModel(currentCategory.index);
         } else {
-          mainLabelGrid.text = "Favorite Apps";
+          mainLabelGrid.text =  pinnedModel == 0 ? "Favorite Apps" : "Recent Apps";
         }
       }
         
@@ -265,6 +269,8 @@ Item {
             visible: plasmoid.configuration.enableGlow && !searching
         }
       }
+
+      Component.onCompleted: headerLabelRow.reset()
     }
     Item {
       visible: !appList.visible && !searching

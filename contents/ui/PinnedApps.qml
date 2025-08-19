@@ -15,7 +15,7 @@ AppGridView {
     property QtObject recentAppsModel: rootModel.modelForRow(0);
     showScrollBar: false
 
-    model:  plasmoid.configuration.pinnedModel == 0 ? globalFavorites : recentAppsModel
+    model: main.pinnedModel == 0 ? globalFavorites : recentAppsModel
 
     Component.onCompleted: {
         recentAppsModel = rootModel.modelForRow(0);
