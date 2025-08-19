@@ -68,9 +68,10 @@ Item {
     appList.reset()
   }
   function reset(){
-    searchBar.textField.clear()
-    appList.reset()
-    headerLabelRow.reset()
+    showAllApps = false;
+    searchBar.textField.clear();
+    appList.reset();
+    headerLabelRow.reset();
   }
 
   onPinnedModelChanged: headerLabelRow.reset()
