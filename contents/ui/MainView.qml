@@ -282,6 +282,7 @@ Item {
     PinnedApps{
       id: pinnedApps
       Layout.fillWidth: true
+      Layout.leftMargin: scrollBarMetrics.width / 2 // Centers the grid due to not scrollbar here
       Layout.preferredHeight: root.cellSizeHeight*3
       Keys.priority: Keys.AfterItem
       Keys.forwardTo: searchBar.textField
