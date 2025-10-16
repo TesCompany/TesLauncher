@@ -1,10 +1,8 @@
 <div align="center">
 
-# Andromeda Launcher
+# Tes Launcher
 
-A simple Launcher for KDE Plasma based on the awesome [mmcklauncher](https://github.com/SnoutBug/mmcklauncher)
+A minimalistic Launcher for KDE Plasma 6 based on the awesome [AndromedaLauncher](https://github.com/EliverLara/AndromedaLauncher)
 
-![Andromeda Launcher](images/preview.png)
-![Andromeda Launcher](images/preview2.png)
 
 </div>
